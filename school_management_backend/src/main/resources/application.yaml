@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: management
+  datasource:
+    url: jdbc:postgresql://localhost:5432/schoolmanagement
+    username: postgres
+    password: 9599
