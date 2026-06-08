@@ -17,7 +17,7 @@ export default function EditCoursePage() {
         }
 
         fetchCourseById(courseId);
-    }, [])
+    }, [courseId])
 
     async function editCourse(formData: FormData) {
         await updateCourse(formData, courseId);

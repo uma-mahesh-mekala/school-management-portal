@@ -18,7 +18,7 @@ export default function EditProfessorPage() {
         }
 
         fetchProfessorById(professorId);
-    }, [])
+    }, [professorId])
 
     async function editProfessor(formData: FormData) {
         await updateProfessor(formData, professorId);

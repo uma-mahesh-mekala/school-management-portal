@@ -1,6 +1,6 @@
 import type { TableProps } from "../types/types";
 
-export default function Table({columns, data, renderActions}: TableProps) {
+export default function Table<T extends { id: number | string }>({columns, data, renderActions}: TableProps<T>) {
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <table className="w-full text-left">

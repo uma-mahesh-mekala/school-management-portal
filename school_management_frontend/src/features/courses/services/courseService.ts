@@ -1,4 +1,4 @@
-const coursesUrl = 'http://localhost:8080/api/courses';
+const coursesUrl = `${import.meta.env.VITE_BACKEND_URL}/courses`;
 
 
 export async function addCourse(formData: FormData) {
@@ -102,13 +102,13 @@ export async function updateCourse(formData: FormData, courseId: string) {
     }
 }
 
-export async function deleteCourse(courseId: string) {
+export async function deleteCourse(courseId: number) {
     const deleteCourseByIdUrl = `${coursesUrl}/${courseId}`;
 
     const confirmDelete = window.confirm("Do you want to delete the course?");
     if(confirmDelete) {
     try {
-        const getCourseByIdResponse = await fetch(deleteCourseByIdUrl, {
+        const deleteCourseByIdResponse = await fetch(deleteCourseByIdUrl, {
             method: "DELETE",
             headers: {
                 "content-type": "application/json",
@@ -116,11 +116,9 @@ export async function deleteCourse(courseId: string) {
             mode: 'cors',
         });
 
-        if(!getCourseByIdResponse.ok) {
+        if(!deleteCourseByIdResponse.ok) {
             throw new Error("Error");
         }
-
-        return getCourseByIdResponse.json();
     } catch (error) {
         console.log(error);
     }
