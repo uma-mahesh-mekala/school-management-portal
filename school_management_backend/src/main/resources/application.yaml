@@ -5,3 +5,6 @@ spring:
     url: jdbc:postgresql://localhost:5432/schoolmanagement
     username: postgres
     password: 9599
+jwt:
+  secret: "super-super-super-super-super-secret-key"
+  expiration: 3600000
