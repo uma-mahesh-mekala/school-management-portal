@@ -11,7 +11,7 @@ export interface CourseFormProps {
 }
 
 export interface Course {
-    id: string;
+    id: number;
     courseName: string;
     credits: number;
 }

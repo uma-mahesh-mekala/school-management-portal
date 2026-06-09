@@ -5,6 +5,7 @@ import com.school.management.dto.CourseResponseDTO;
 import com.school.management.entity.Course;
 import com.school.management.mapper.CourseMapper;
 import com.school.management.repository.Course.CourseRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class CourseService {
         this.courseRepository = courseRepository;
     }
 
+    @Transactional
     public CourseResponseDTO addCourse(CourseRequestDTO course) {
         Course tempCourse = new Course(course.getCourseName(), course.getCredits());
 
@@ -40,6 +42,7 @@ public class CourseService {
         return CourseMapper.convertToDTO(tempCourse);
     }
 
+    @Transactional
     public CourseResponseDTO update(Integer id, CourseRequestDTO course) {
         Course courseToUpdate = new Course(course.getCourseName(), course.getCredits());
         courseToUpdate.setId(id);
@@ -49,6 +52,7 @@ public class CourseService {
         return CourseMapper.convertToDTO(updatedCourse);
     }
 
+    @Transactional
     public void deleteByCourseId(Integer id) {
         courseRepository.deleteById(id);
     }

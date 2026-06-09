@@ -1,7 +1,7 @@
 export type Department = 'PHYSICS' | 'SCIENCE' | 'MATHEMATICS' | 'SOCIAL' | 'LANGUAGES';
 
 export interface Professor {
-    id: string;
+    id: number;
     email: string;
     department: Department;
     designation: string;
