@@ -1,7 +1,6 @@
 package com.school.management.service;
 
 import com.school.management.dto.LoginRequestDTO;
-import com.school.management.entity.AppUser;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -27,6 +26,5 @@ public class AuthService {
                 )
         );
 
-        return jwtSerivce.generateToken(loginRequest.getUsername());
-    }
+        return jwtSerivce.generateToken(loginRequest.getUsername());}
 }

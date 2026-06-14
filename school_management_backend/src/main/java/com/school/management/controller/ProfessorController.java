@@ -3,7 +3,6 @@ package com.school.management.controller;
 import com.school.management.dto.ProfessorRequestDTO;
 import com.school.management.dto.ProfessorResponseDTO;
 import com.school.management.service.ProfessorService;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

@@ -2,7 +2,6 @@ package com.school.management.config;
 
 import com.school.management.service.CustomUserDetailsService;
 import com.school.management.service.JwtService;
-import jakarta.persistence.Column;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
