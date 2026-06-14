@@ -1,6 +1,5 @@
 package com.school.management.controller;
 
-import com.school.management.dto.ProfessorRequestDTO;
 import com.school.management.dto.StudentRequestDTO;
 import com.school.management.dto.StudentResponseDTO;
 import com.school.management.service.StudentService;

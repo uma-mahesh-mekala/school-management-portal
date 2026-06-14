@@ -2,7 +2,6 @@ package com.school.management.controller;
 
 import com.school.management.dto.CourseRequestDTO;
 import com.school.management.dto.CourseResponseDTO;
-import com.school.management.entity.Course;
 import com.school.management.service.CourseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
