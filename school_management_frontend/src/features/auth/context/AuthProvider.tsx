@@ -22,6 +22,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const email = decoded?.sub ?? null;
   const isExpired = decoded ? isTokenExpired(decoded.exp) : true;
   const isAuthenticated = !!accessToken && !!decoded && !isExpired;
+  const role = decoded?.role ?? null;
 
   if (accessToken && isExpired) {
     authStorage.clearAccessToken();
@@ -33,6 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         logout,
         email,
+        role,
       }}
     >
       {children}

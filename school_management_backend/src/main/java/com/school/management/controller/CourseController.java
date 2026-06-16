@@ -5,6 +5,7 @@ import com.school.management.dto.CourseResponseDTO;
 import com.school.management.service.CourseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class CourseController {
         this.courseService = courseService;
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/courses")
     public ResponseEntity<CourseResponseDTO> addCourse(@RequestBody CourseRequestDTO course) {
         CourseResponseDTO savedCourse = courseService.addCourse(course);
@@ -26,6 +28,7 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCourse);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STUDENT')")
     @GetMapping("/courses")
     public ResponseEntity<List<CourseResponseDTO>> fetchAll() {
         List<CourseResponseDTO> courses = courseService.fetchAllCourses();
@@ -33,6 +36,7 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.OK).body(courses);
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/courses/{courseId}")
     public ResponseEntity<CourseResponseDTO> findById(@PathVariable Integer courseId  ) {
         CourseResponseDTO course = courseService.findById(courseId);
@@ -40,6 +44,7 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.OK).body(course);
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PutMapping("/courses/{courseId}")
     public ResponseEntity<CourseResponseDTO> updateCourse(@PathVariable Integer courseId, @RequestBody CourseRequestDTO updatedCourse) {
         CourseResponseDTO course = courseService.update(courseId, updatedCourse);
@@ -47,6 +52,7 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.OK).body(course);
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/courses/{courseId}")
     public ResponseEntity<Void> deleteCourse(@PathVariable Integer courseId) {
         courseService.deleteByCourseId(courseId);

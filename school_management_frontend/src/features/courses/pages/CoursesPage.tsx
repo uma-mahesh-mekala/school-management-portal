@@ -4,6 +4,7 @@ import { NavLink } from "react-router";
 import type { Course } from "../types/types";
 import { getCourses, deleteCourse } from "../services/courseService";
 import type { Column } from "../../../components/types/types";
+import { useAuth } from "../../auth/context/useAuth";
 
 const courseColumns: Column<Course>[] = [
   {
@@ -22,6 +23,7 @@ const courseColumns: Column<Course>[] = [
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
+  const { role } = useAuth();
   useEffect(() => {
     async function fetchCourses() {
       const availableCourses = await getCourses();
@@ -40,7 +42,7 @@ export default function CoursesPage() {
   };
 
   const renderActions = (course: Course) => {
-    return (
+    return role === "ROLE_ADMIN" ? (
       <div className="flex gap-2">
         <NavLink
           to={`/courses/${course.id}/edit`}
@@ -55,6 +57,15 @@ export default function CoursesPage() {
         >
           Delete
         </button>
+      </div>
+    ) : (
+      <div className="flex gap-2">
+        <NavLink
+          to={`/courses/${course.id}/edit`}
+          className="rounded-md bg-sky-100 px-3 py-1 text-sm font-medium text-sky-700 transition hover:bg-sky-200"
+        >
+          Enroll
+        </NavLink>
       </div>
     );
   };

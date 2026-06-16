@@ -3,6 +3,8 @@ package com.school.management.service;
 import com.school.management.dto.LoginRequestDTO;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,12 +21,14 @@ public class AuthService {
     }
 
     public String login(LoginRequestDTO loginRequest) {
-        authenticationManager.authenticate(
+        Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getUsername(),
                         loginRequest.getPassword()
                 )
         );
 
-        return jwtSerivce.generateToken(loginRequest.getUsername());}
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String role = userDetails.getAuthorities().iterator().next().getAuthority();
+        return jwtSerivce.generateToken(loginRequest.getUsername(), role);}
 }
