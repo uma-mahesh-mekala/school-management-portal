@@ -8,7 +8,7 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   login: (token: string) => void;
   logout: () => void;
-  role: string;
+  role: string | null;
 }
 
 export interface LoginSuccessResponse {

@@ -1,0 +1,23 @@
+const END_POINTS = {
+  LOGIN: "login",
+  HOME: "/",
+  COURSES: "courses",
+  PROFESSORS: "professors",
+  STUDENTS: "students",
+};
+
+const PATHS = {
+  LOGIN: `/${END_POINTS.LOGIN}`,
+  HOME: END_POINTS.HOME,
+  COURSES: `/${END_POINTS.COURSES}`,
+  ADD_COURSE: `/${END_POINTS.COURSES}/new`,
+  EDIT_COURSE: `/${END_POINTS.COURSES}/:courseId/edit`,
+  PROFESSORS: `/${END_POINTS.PROFESSORS}`,
+  ADD_PROFESSOR: `/${END_POINTS.PROFESSORS}/new`,
+  EDIT_PROFESSOR: `/${END_POINTS.PROFESSORS}/:professorId/edit`,
+  STUDENTS: `/${END_POINTS.STUDENTS}`,
+  ADD_STUDENT: `/${END_POINTS.STUDENTS}/new`,
+  EDIT_STUDENT: `/${END_POINTS.STUDENTS}/:studentId/edit`,
+};
+
+export { PATHS };

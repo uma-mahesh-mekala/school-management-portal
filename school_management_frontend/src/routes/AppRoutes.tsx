@@ -11,29 +11,24 @@ import AddStudentPage from "../features/students/pages/AddStudentPage";
 import EditStudentPage from "../features/students/pages/EditStudentPage";
 import LoginPage from "../features/auth/pages/LoginPage";
 import { ProtectedRoute } from "../components/common/ProtectedRoute";
+import { PATHS } from "./constants";
 
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
+      <Route path={PATHS.LOGIN} element={<LoginPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
-          <Route path="/" element={<CoursesPage />} />
-          <Route path="/courses" element={<CoursesPage />} />
-          <Route path="/courses/new" element={<AddCoursePage />} />
-          <Route path="/courses/:courseId/edit" element={<EditCoursePage />} />
-          <Route path="/professors" element={<ProfessorsPage />} />
-          <Route path="/professors/new" element={<AddProfessorPage />} />
-          <Route
-            path="/professors/:professorId/edit"
-            element={<EditProfessorPage />}
-          />
-          <Route path="/students" element={<StudentsPage />} />
-          <Route path="/students/new" element={<AddStudentPage />} />
-          <Route
-            path="/students/:studentId/edit"
-            element={<EditStudentPage />}
-          />
+          <Route path={PATHS.HOME} element={<CoursesPage />} />
+          <Route path={PATHS.COURSES} element={<CoursesPage />} />
+          <Route path={PATHS.PROFESSORS} element={<ProfessorsPage />} />
+          <Route path={PATHS.ADD_COURSE} element={<AddCoursePage />} />
+          <Route path={PATHS.EDIT_COURSE} element={<EditCoursePage />} />
+          <Route path={PATHS.ADD_PROFESSOR} element={<AddProfessorPage />} />
+          <Route path={PATHS.EDIT_PROFESSOR} element={<EditProfessorPage />} />
+          <Route path={PATHS.STUDENTS} element={<StudentsPage />} />
+          <Route path={PATHS.ADD_STUDENT} element={<AddStudentPage />} />
+          <Route path={PATHS.EDIT_STUDENT} element={<EditStudentPage />} />
         </Route>
       </Route>
     </Routes>
