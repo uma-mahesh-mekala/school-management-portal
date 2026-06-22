@@ -1,7 +1,5 @@
-import { useQueryClient, useMutation } from "@tanstack/react-query";
 import Table from "../../../components/common/Table";
 import type { Course } from "../types/types";
-import { deleteCourse } from "../services/courseService";
 import type { Column } from "../../../components/types/types";
 import { useAuth } from "../../auth/context/useAuth";
 import { Loader } from "../../../components/ui/Loader";
@@ -10,6 +8,7 @@ import { CourseHeader } from "../components/CourseHeader";
 import { useCourses } from "../hooks/useCourses";
 import { useEnrollment } from "../hooks/useEnrollment";
 import { useUnEnrollment } from "../hooks/useUnEnrollment";
+import { useDeleteMutation } from "../hooks/useDeleteCourse";
 
 const courseColumns: Column<Course>[] = [
   {
@@ -28,16 +27,10 @@ const courseColumns: Column<Course>[] = [
 
 export default function CoursesPage() {
   const { role } = useAuth();
-  const queryClient = useQueryClient();
 
   const { data, isError, isLoading, error } = useCourses();
 
-  const deleteCourseMutation = useMutation({
-    mutationFn: (courseId: number) => deleteCourse(courseId),
-    onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["courses"] });
-    },
-  });
+  const deleteCourseMutation = useDeleteMutation();
 
   const courseEnrollmentMutation = useEnrollment();
 

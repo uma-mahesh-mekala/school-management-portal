@@ -23,3 +23,8 @@ export interface CourseActionsProps {
   onEnroll: (courseId: number) => void;
   onUnEnroll: (courseId: number) => void;
 }
+
+export interface UpdateCourseRequest {
+  formData: FormData;
+  courseId: number;
+}

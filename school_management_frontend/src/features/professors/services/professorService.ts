@@ -81,6 +81,9 @@ export async function deleteProfessor(id: number) {
       method: "DELETE",
     });
 
-    return deleteProfessorByIdResponse.json();
+    if (!deleteProfessorByIdResponse.ok) {
+      throw new Error("Delete Unsuccessfull");
+    }
+    return;
   }
 }

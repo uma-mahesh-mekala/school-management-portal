@@ -81,7 +81,10 @@ export async function deleteStudent(id: number) {
       method: "DELETE",
     });
 
-    return deleteStudentByIdResponse.json();
+    if (!deleteStudentByIdResponse.ok) {
+      throw new Error("Delete Unsuccessfull");
+    }
+    return;
   }
 }
 

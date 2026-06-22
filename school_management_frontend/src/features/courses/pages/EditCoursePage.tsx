@@ -1,36 +1,20 @@
 import { useParams, useNavigate } from "react-router-dom";
 import CourseForm from "../components/CourseForm";
-import { getCourseById, updateCourse } from "../services/courseService";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import type { Course } from "../types/types";
+import { useGetCourseById } from "../hooks/useGetCoursesById";
+import { useUpdateMutation } from "../hooks/useUpdateCourse";
 
 export default function EditCoursePage() {
   const params = useParams();
   const navigate = useNavigate();
-  const courseId = params.courseId as string;
-  const queryClient = useQueryClient();
+  const courseId = Number(params.courseId);
 
-  const updateCourseMutation = useMutation({
-    mutationFn: (formData: FormData) => updateCourse(formData, courseId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["courses"] });
-      queryClient.invalidateQueries({ queryKey: ["course", courseId] });
+  const updateCourseMutation = useUpdateMutation();
 
-      navigate("/courses");
-    },
-  });
-  
-  const { data, isError, isLoading } = useQuery({
-    queryKey: ["course", courseId],
-    queryFn: () => getCourseById(courseId),
-    initialData: () =>
-      queryClient
-        .getQueryData<Course[]>(["courses"])
-        ?.find((c) => String(c.id) === courseId),
-  });
+  const { data, isError, isLoading } = useGetCourseById(courseId);
 
   async function editCourse(formData: FormData) {
-    updateCourseMutation.mutate(formData);
+    updateCourseMutation.mutate({ formData, courseId });
+    navigate("/courses");
   }
 
   if (isLoading) {

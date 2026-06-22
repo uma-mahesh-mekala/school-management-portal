@@ -24,14 +24,14 @@ export async function getCourses() {
   return getCoursesResponse.json();
 }
 
-export async function getCourseById(id: string) {
+export async function getCourseById(id: number) {
   const getCourseByIdUrl = `${coursesUrl}/${id}`;
 
   const getCoursesByIdResponse = await apiFetch(getCourseByIdUrl);
   return getCoursesByIdResponse.json();
 }
 
-export async function updateCourse(formData: FormData, courseId: string) {
+export async function updateCourse(formData: FormData, courseId: number) {
   const updateCourseByIdUrl = `${coursesUrl}/${courseId}`;
   const courseName = formData.get("name") as string;
   const credits = parseFloat(
@@ -60,6 +60,9 @@ export async function deleteCourse(courseId: number) {
       method: "DELETE",
     });
 
-    return deleteCourseByIdResponse.json();
+    if (!deleteCourseByIdResponse.ok) {
+      throw new Error("Delete Unsuccessfull");
+    }
+    return;
   }
 }
