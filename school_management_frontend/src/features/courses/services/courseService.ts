@@ -1,5 +1,4 @@
-import authStorage from "../../auth/utils/authStorage";
-
+import { apiFetch } from "../../../api/apiClient";
 const coursesUrl = `${import.meta.env.VITE_BACKEND_URL}/courses`;
 
 export async function addCourse(formData: FormData) {
@@ -12,73 +11,24 @@ export async function addCourse(formData: FormData) {
     courseName,
     credits,
   };
-  try {
-    const accessToken = authStorage.getAccessToken();
-    const addCourseResponse = await fetch(coursesUrl, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      mode: "cors",
-      body: JSON.stringify(newCourse),
-    });
+  const addNewCourseResponse = await apiFetch(coursesUrl, {
+    method: "POST",
+    body: JSON.stringify(newCourse),
+  });
 
-    if (!addCourseResponse.ok) {
-      throw new Error("Error");
-    }
-
-    return addCourseResponse.json();
-  } catch (error) {
-    console.log(error);
-  }
+  return addNewCourseResponse.json();
 }
 
 export async function getCourses() {
-  try {
-    const accessToken = localStorage.getItem("accessToken");
-    const getCoursesResponse = await fetch(coursesUrl, {
-      method: "GET",
-      headers: {
-        "content-type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      mode: "cors",
-    });
-
-    if (!getCoursesResponse.ok) {
-      throw new Error("Error");
-    }
-
-    return getCoursesResponse.json();
-  } catch (error) {
-    console.log(error);
-  }
+  const getCoursesResponse = await apiFetch(coursesUrl);
+  return getCoursesResponse.json();
 }
 
 export async function getCourseById(id: string) {
   const getCourseByIdUrl = `${coursesUrl}/${id}`;
 
-  try {
-    const accessToken = authStorage.getAccessToken();
-    const getCourseByIdResponse = await fetch(getCourseByIdUrl, {
-      method: "GET",
-      headers: {
-        "content-type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      mode: "cors",
-      credentials: "include",
-    });
-
-    if (!getCourseByIdResponse.ok) {
-      throw new Error("Error");
-    }
-
-    return getCourseByIdResponse.json();
-  } catch (error) {
-    console.log(error);
-  }
+  const getCoursesByIdResponse = await apiFetch(getCourseByIdUrl);
+  return getCoursesByIdResponse.json();
 }
 
 export async function updateCourse(formData: FormData, courseId: string) {
@@ -93,26 +43,12 @@ export async function updateCourse(formData: FormData, courseId: string) {
     courseName,
     credits,
   };
-  try {
-    const accessToken = authStorage.getAccessToken();
-    const getCourseByIdResponse = await fetch(updateCourseByIdUrl, {
-      method: "PUT",
-      headers: {
-        "content-type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      mode: "cors",
-      body: JSON.stringify(updatedCourse),
-    });
+  const updatedCourseResponse = await apiFetch(updateCourseByIdUrl, {
+    method: "PUT",
+    body: JSON.stringify(updatedCourse),
+  });
 
-    if (!getCourseByIdResponse.ok) {
-      throw new Error("Error");
-    }
-
-    return getCourseByIdResponse.json();
-  } catch (error) {
-    console.log(error);
-  }
+  return updatedCourseResponse.json();
 }
 
 export async function deleteCourse(courseId: number) {
@@ -120,22 +56,10 @@ export async function deleteCourse(courseId: number) {
 
   const confirmDelete = window.confirm("Do you want to delete the course?");
   if (confirmDelete) {
-    try {
-      const accessToken = authStorage.getAccessToken();
-      const deleteCourseByIdResponse = await fetch(deleteCourseByIdUrl, {
-        method: "DELETE",
-        headers: {
-          "content-type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        mode: "cors",
-      });
+    const deleteCourseByIdResponse = await apiFetch(deleteCourseByIdUrl, {
+      method: "DELETE",
+    });
 
-      if (!deleteCourseByIdResponse.ok) {
-        throw new Error("Error");
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    return deleteCourseByIdResponse.json();
   }
 }
