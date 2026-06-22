@@ -1,40 +1,32 @@
-import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ProfessorForm from "../components/ProfessorForm";
-import { getProfessorById, updateProfessor } from "../services/professorService";
-import type { Professor } from "../types/types";
+import { useUpdateMutation } from "../hooks/useUpdateMutation";
+import { useGetProfessorById } from "../hooks/useGetProfessorById";
+import { Loader } from "../../../components/ui/Loader";
 
 export default function EditProfessorPage() {
-    const [professor, setProfessor] = useState<Professor | null>(null); 
-    const params = useParams();
-    const navigate = useNavigate();
-    const professorId = params.professorId as string;
+  const params = useParams();
+  const navigate = useNavigate();
+  const updateProfessorMutation = useUpdateMutation();
+  const professorId = Number(params.professorId);
 
-    
-    useEffect(() => {
-        async function fetchProfessorById(id: string) {
-            const professorById = await getProfessorById(id);
-            setProfessor(professorById);
-        }
+  const { data, isFetching } = useGetProfessorById(professorId);
+  async function editProfessor(formData: FormData) {
+    updateProfessorMutation.mutate({ formData, professorId });
+    navigate("/professors");
+  }
 
-        fetchProfessorById(professorId);
-    }, [professorId])
+  if (isFetching) {
+    return <Loader />;
+  }
 
-    async function editProfessor(formData: FormData) {
-        await updateProfessor(formData, professorId);
-        navigate("/professors");        
-    }
-
-  
-    if(!professor) {
-        return <div>Loading...</div>
-    }  
-
-  return <ProfessorForm
-            title= 'Edit Professor'
-            description="Please update the professor details"
-            submitAction={editProfessor}
-            submitText="Edit"
-            initialValues={professor}
-          />
+  return (
+    <ProfessorForm
+      title="Edit Professor"
+      description="Please update the professor details"
+      submitAction={editProfessor}
+      submitText="Edit"
+      initialValues={data}
+    />
+  );
 }

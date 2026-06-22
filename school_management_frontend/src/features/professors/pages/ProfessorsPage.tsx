@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
 import Table from "../../../components/common/Table";
 import { NavLink } from "react-router";
 import type { Professor } from "../types/types";
-import { getProfessors, deleteProfessor } from "../services/professorService";
 import type { Column } from "../../../components/types/types";
+import { useGetProfessor } from "../hooks/useGetProfessors";
+import { useDeleteMutation } from "../hooks/useDeleteMutation";
+import { Loader } from "../../../components/ui/Loader";
+import { ProfessorActions } from "../components/ProfessorActions";
 
 const professorColumns: Column<Professor>[] = [
   {
@@ -29,43 +31,18 @@ const professorColumns: Column<Professor>[] = [
 ];
 
 export default function ProfessorsPage() {
-  const [professors, setProfessors] = useState<Professor[]>([]);
-  useEffect(() => {
-    async function fetchProfessors() {
-      const availableProfessors = await getProfessors();
-      setProfessors(availableProfessors);
-    }
+  const { data = [], isFetching } = useGetProfessor();
 
-    fetchProfessors();
-  }, []);
+  const deleteMutation = useDeleteMutation();
 
   const deleteTheProfessor = async (professorId: number) => {
-    await deleteProfessor(professorId);
-
-    setProfessors((current) =>
-      current.filter((professor) => professor.id !== Number(professorId)),
-    );
+    deleteMutation.mutate(professorId);
   };
 
-  const renderActions = (professor: Professor) => {
-    return (
-      <div className="flex gap-2">
-        <NavLink
-          to={`/professors/${professor.id}/edit`}
-          className="rounded-md bg-sky-100 px-3 py-1 text-sm font-medium text-sky-700 transition hover:bg-sky-200"
-        >
-          Edit
-        </NavLink>
+  if (isFetching) {
+    return <Loader />;
+  }
 
-        <button
-          className="rounded-md bg-red-100 px-3 py-1 text-sm font-medium text-red-700 transition hover:bg-red-200"
-          onClick={() => deleteTheProfessor(professor.id)}
-        >
-          Delete
-        </button>
-      </div>
-    );
-  };
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -86,8 +63,13 @@ export default function ProfessorsPage() {
       </div>
       <Table
         columns={professorColumns}
-        data={professors}
-        renderActions={renderActions}
+        data={data}
+        renderActions={(professor) => (
+          <ProfessorActions
+            professor={professor}
+            onDelete={deleteTheProfessor}
+          />
+        )}
       />
     </div>
   );

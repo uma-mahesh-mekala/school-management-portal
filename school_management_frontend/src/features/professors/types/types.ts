@@ -1,26 +1,40 @@
-export type Department = 'PHYSICS' | 'SCIENCE' | 'MATHEMATICS' | 'SOCIAL' | 'LANGUAGES';
+export type Department =
+  | "PHYSICS"
+  | "SCIENCE"
+  | "MATHEMATICS"
+  | "SOCIAL"
+  | "LANGUAGES";
 
 export interface Professor {
-    id: number;
-    email: string;
-    department: Department;
-    designation: string;
-    firstName: string;
-    lastName: string;
-    fullName?: string;
+  id: number;
+  email: string;
+  department: Department;
+  designation: string;
+  firstName: string;
+  lastName: string;
+  fullName?: string;
 }
 
 export interface ProfessorFormProps {
-    title: string;
-    description: string;
-    submitAction: (formData: FormData) => void;
-    initialValues?: {
-        firstName: string;
-        lastName: string;
-        email: string;
-        department: string;
-        designation: string;
-    };
-    submitText: string;
+  title: string;
+  description: string;
+  submitAction: (formData: FormData) => void;
+  initialValues?: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    department: string;
+    designation: string;
+  };
+  submitText: string;
+}
 
+export interface ProfessorActionsProps {
+  professor: Professor;
+  onDelete: (professorId: number) => void;
+}
+
+export interface UpdateProfessorRequest {
+  formData: FormData;
+  professorId: number;
 }

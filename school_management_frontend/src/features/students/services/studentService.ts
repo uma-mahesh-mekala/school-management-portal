@@ -1,4 +1,4 @@
-import authStorage from "../../auth/utils/authStorage";
+import { apiFetch } from "../../../api/apiClient";
 import type { Student } from "../types/types";
 
 const studentsUrl = `${import.meta.env.VITE_BACKEND_URL}/students`;
@@ -18,76 +18,38 @@ export async function addStudent(formData: FormData) {
     dateOfJoining,
   };
 
-  try {
-    const accessToken = authStorage.getAccessToken();
-    const addStudentResponse = await fetch(studentsUrl, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(newStudent),
-      mode: "cors",
-    });
-
-    if (!addStudentResponse.ok) {
-      throw new Error("Error");
-    }
-  } catch (error) {
-    console.log(error);
-  }
-}
-export async function getStudents() {
-  try {
-    const accessToken = authStorage.getAccessToken();
-    const getStudentsResponse = await fetch(studentsUrl, {
-      method: "GET",
-      headers: {
-        "content-type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      mode: "cors",
-    });
-
-    if (!getStudentsResponse.ok) {
-      throw new Error("Error");
-    }
-
-    const students = await getStudentsResponse.json();
-    return students.map((student: Student) => ({
-      ...student,
-      fullName: `${student.firstName} ${student.lastName}`,
-    }));
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-export async function getStudentById(id: string) {
-  const studentByIdUrl = `${studentsUrl}/${id}`;
-  const accessToken = authStorage.getAccessToken();
-  const getStudentByIdResponse = await fetch(studentByIdUrl, {
-    method: "GET",
-    headers: {
-      "content-type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-    },
-    mode: "cors",
+  const addStudentResponse = await apiFetch(studentsUrl, {
+    method: "POST",
+    body: JSON.stringify(newStudent),
   });
 
-  if (!getStudentByIdResponse.ok) {
-    throw new Error("Error");
-  }
+  return addStudentResponse.json();
+}
 
+export async function getStudents() {
+  const getStudentsResponse = await apiFetch(studentsUrl);
+  const students = await getStudentsResponse.json();
+
+  return students.map((student: Student) => ({
+    ...student,
+    fullName: `${student.firstName} ${student.lastName}`,
+  }));
+}
+
+export async function getStudentById(id: number) {
+  const studentByIdUrl = `${studentsUrl}/${id}`;
+
+  const getStudentByIdResponse = await apiFetch(studentByIdUrl);
   const student = await getStudentByIdResponse.json();
+
   return {
     ...student,
     fullName: `${student.firstName} ${student.lastName}`,
   };
 }
 
-export async function updateStudent(formData: FormData, id: string) {
-  const updateStudentsUrl = `${studentsUrl}/${id}`;
+export async function updateStudent(formData: FormData, studentId: number) {
+  const updateStudentsUrl = `${studentsUrl}/${studentId}`;
   const firstName = formData.get("firstName") as string;
   const lastName = formData.get("lastName") as string;
   const email = formData.get("email") as string;
@@ -102,24 +64,12 @@ export async function updateStudent(formData: FormData, id: string) {
     dateOfJoining,
   };
 
-  try {
-    const accessToken = authStorage.getAccessToken();
-    const updateStudentResponse = await fetch(updateStudentsUrl, {
-      method: "PUT",
-      headers: {
-        "content-type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(studentDetailsToUpdate),
-      mode: "cors",
-    });
+  const updateStudentResponse = await apiFetch(updateStudentsUrl, {
+    method: "PUT",
+    body: JSON.stringify(studentDetailsToUpdate),
+  });
 
-    if (!updateStudentResponse.ok) {
-      throw new Error("Error");
-    }
-  } catch (error) {
-    console.log(error);
-  }
+  return updateStudentResponse.json();
 }
 
 export async function deleteStudent(id: number) {
@@ -127,22 +77,39 @@ export async function deleteStudent(id: number) {
 
   const confirmDelete = window.confirm("Do you want to delete the Student?");
   if (confirmDelete) {
-    try {
-      const accessToken = authStorage.getAccessToken();
-      const deleteStudentByIdResponse = await fetch(deleteStudentByIdUrl, {
-        method: "DELETE",
-        headers: {
-          "content-type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        mode: "cors",
-      });
+    const deleteStudentByIdResponse = await apiFetch(deleteStudentByIdUrl, {
+      method: "DELETE",
+    });
 
-      if (!deleteStudentByIdResponse.ok) {
-        throw new Error("Error");
-      }
-    } catch (error) {
-      console.log(error);
+    if (!deleteStudentByIdResponse.ok) {
+      throw new Error("Delete Unsuccessfull");
     }
+    return;
   }
+}
+
+export async function getStudentCourses() {
+  const studentCoursesUrl = `${studentsUrl}/me/courses`;
+  const getStudentCoursesResponse = await apiFetch(studentCoursesUrl);
+  return getStudentCoursesResponse.json();
+}
+
+export async function enrollForCourse(courseId: number) {
+  const studentCourseEnrollUrl = `${studentsUrl}/courses/${courseId}/enroll`;
+  const enrollStudentCourseResponse = await apiFetch(studentCourseEnrollUrl, {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+
+  return enrollStudentCourseResponse.json();
+}
+
+export async function unEnrollForCourse(courseId: number) {
+  const studentCourseUnEnrollUrl = `${studentsUrl}/courses/${courseId}/unenroll`;
+  const enrollStudentCourseResponse = await apiFetch(studentCourseUnEnrollUrl, {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+
+  return enrollStudentCourseResponse.json();
 }

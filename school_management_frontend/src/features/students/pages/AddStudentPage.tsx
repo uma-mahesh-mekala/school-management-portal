@@ -1,18 +1,21 @@
 import { useNavigate } from "react-router";
 import StudentForm from "../components/StudentForm";
-import { addStudent } from "../services/studentService";
+import { useAddMutation } from "../hooks/useAddMutation";
 
 export default function AddStudentPage() {
-    const navigate = useNavigate()
-    async function addNewStudent(formData: FormData) {
-        await addStudent(formData);
-        navigate("/students")
-    }
+  const navigate = useNavigate();
+  const addStudentMutation = useAddMutation();
+  async function addNewStudent(formData: FormData) {
+    addStudentMutation.mutate(formData);
+    navigate("/students");
+  }
 
-    return <StudentForm
-                title= 'Add Student'
-                description="Add a new student"
-                submitAction={addNewStudent}
-                submitText="Add Student"
-            />
+  return (
+    <StudentForm
+      title="Add Student"
+      description="Add a new student"
+      submitAction={addNewStudent}
+      submitText="Add Student"
+    />
+  );
 }

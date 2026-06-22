@@ -1,40 +1,33 @@
-import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import StudentForm from "../components/StudentForm";
-import { getStudentById, updateStudent } from "../services/studentService";
-import type { Student } from "../types/types";
+import { useUpdateMutation } from "../hooks/useUpdateMutation";
+import { useGetStudentById } from "../hooks/useGetStudentById";
+import { Loader } from "lucide-react";
 
 export default function EditStudentPage() {
-    const [student, setStudent] = useState<Student | null>(null); 
-    const params = useParams();
-    const navigate = useNavigate();
-    const studentId = params.studentId as string;
+  const params = useParams();
+  const navigate = useNavigate();
+  const updateStudentMutation = useUpdateMutation();
+  const studentId = Number(params.studentId);
 
-    
-    useEffect(() => {
-        async function fetchStudentById(id: string) {
-            const studentById = await getStudentById(id);
-            setStudent(studentById);
-        }
+  const { data, isFetching } = useGetStudentById(studentId);
 
-        fetchStudentById(studentId);
-    }, [studentId])
+  async function editStudent(formData: FormData) {
+    updateStudentMutation.mutate({ formData, studentId });
+    navigate("/students");
+  }
 
-    async function editStudent(formData: FormData) {
-        await updateStudent(formData, studentId);
-        navigate("/students");        
-    }
+  if (isFetching) {
+    return <Loader />;
+  }
 
-  
-    if(!student) {
-        return <div>Loading...</div>
-    }  
-
-  return <StudentForm
-            title= 'Edit Student'
-            description="Please update the student details"
-            submitAction={editStudent}
-            submitText="Edit"
-            initialValues={student}
-          />
+  return (
+    <StudentForm
+      title="Edit Student"
+      description="Please update the student details"
+      submitAction={editStudent}
+      submitText="Edit"
+      initialValues={data}
+    />
+  );
 }

@@ -1,4 +1,4 @@
-import authStorage from "../../auth/utils/authStorage";
+import { apiFetch } from "../../../api/apiClient";
 import type { Professor, Department } from "../types/types";
 
 const professorsUrl = `${import.meta.env.VITE_BACKEND_URL}/professors`;
@@ -18,76 +18,38 @@ export async function addProfessor(formData: FormData) {
     designation,
   };
 
-  try {
-    const accessToken = authStorage.getAccessToken();
-    const addProfessorResponse = await fetch(professorsUrl, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(newProfessor),
-      mode: "cors",
-    });
-
-    if (!addProfessorResponse.ok) {
-      throw new Error("Error");
-    }
-  } catch (error) {
-    console.log(error);
-  }
-}
-export async function getProfessors() {
-  try {
-    const accessToken = authStorage.getAccessToken();
-    const getProfessorResponse = await fetch(professorsUrl, {
-      method: "GET",
-      headers: {
-        "content-type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      mode: "cors",
-    });
-
-    if (!getProfessorResponse.ok) {
-      throw new Error("Error");
-    }
-
-    const professors = await getProfessorResponse.json();
-    return professors.map((professor: Professor) => ({
-      ...professor,
-      fullName: `${professor.firstName} ${professor.lastName}`,
-    }));
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-export async function getProfessorById(id: string) {
-  const professorByIdUrl = `${professorsUrl}/${id}`;
-  const accessToken = authStorage.getAccessToken();
-  const getProfessorByIdResponse = await fetch(professorByIdUrl, {
-    method: "GET",
-    headers: {
-      "content-type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-    },
-    mode: "cors",
+  const addProfessorResponse = await apiFetch(professorsUrl, {
+    method: "POST",
+    body: JSON.stringify(newProfessor),
   });
 
-  if (!getProfessorByIdResponse.ok) {
-    throw new Error("Error");
-  }
+  return addProfessorResponse.json();
+}
 
+export async function getProfessors() {
+  const getProfessorResponse = await apiFetch(professorsUrl);
+
+  const professors = await getProfessorResponse.json();
+  return professors.map((professor: Professor) => ({
+    ...professor,
+    fullName: `${professor.firstName} ${professor.lastName}`,
+  }));
+}
+
+export async function getProfessorById(id: number) {
+  const professorByIdUrl = `${professorsUrl}/${id}`;
+
+  const getProfessorByIdResponse = await apiFetch(professorByIdUrl);
   const professor = await getProfessorByIdResponse.json();
+
   return {
     ...professor,
     fullName: `${professor.firstName} ${professor.lastName}`,
   };
 }
 
-export async function updateProfessor(formData: FormData, id: string) {
-  const updateProfessorUrl = `${professorsUrl}/${id}`;
+export async function updateProfessor(formData: FormData, professorId: number) {
+  const updateProfessorUrl = `${professorsUrl}/${professorId}`;
   const firstName = formData.get("firstName") as string;
   const lastName = formData.get("lastName") as string;
   const email = formData.get("email") as string;
@@ -102,24 +64,12 @@ export async function updateProfessor(formData: FormData, id: string) {
     designation,
   };
 
-  try {
-    const accessToken = authStorage.getAccessToken();
-    const updateProfessorResponse = await fetch(updateProfessorUrl, {
-      method: "PUT",
-      headers: {
-        "content-type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(professorDetailsToUpdate),
-      mode: "cors",
-    });
+  const updateProfessorResponse = await apiFetch(updateProfessorUrl, {
+    method: "PUT",
+    body: JSON.stringify(professorDetailsToUpdate),
+  });
 
-    if (!updateProfessorResponse.ok) {
-      throw new Error("Error");
-    }
-  } catch (error) {
-    console.log(error);
-  }
+  return updateProfessorResponse.json();
 }
 
 export async function deleteProfessor(id: number) {
@@ -127,20 +77,13 @@ export async function deleteProfessor(id: number) {
 
   const confirmDelete = window.confirm("Do you want to delete the professor?");
   if (confirmDelete) {
-    try {
-      const deleteProfessorByIdResponse = await fetch(deleteProfessorByIdUrl, {
-        method: "DELETE",
-        headers: {
-          "content-type": "application/json",
-        },
-        mode: "cors",
-      });
+    const deleteProfessorByIdResponse = await apiFetch(deleteProfessorByIdUrl, {
+      method: "DELETE",
+    });
 
-      if (!deleteProfessorByIdResponse.ok) {
-        throw new Error("Error");
-      }
-    } catch (error) {
-      console.log(error);
+    if (!deleteProfessorByIdResponse.ok) {
+      throw new Error("Delete Unsuccessfull");
     }
+    return;
   }
 }

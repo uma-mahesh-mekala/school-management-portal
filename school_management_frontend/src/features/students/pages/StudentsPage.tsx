@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
 import Table from "../../../components/common/Table";
 import { NavLink } from "react-router";
 import type { Student } from "../types/types";
-import { getStudents, deleteStudent } from "../services/studentService";
 import type { Column } from "../../../components/types/types";
+import { useDeleteMutation } from "../hooks/useDeleteMutation";
+import { useGetStudents } from "../hooks/useGetStudents";
+import { StudentActions } from "../components/StudentActions";
+import { Loader } from "../../../components/ui/Loader";
 
 const studentColumns: Column<Student>[] = [
   {
@@ -29,46 +31,17 @@ const studentColumns: Column<Student>[] = [
 ];
 
 export default function StudentsPage() {
-  const [students, setStudents] = useState<Student[]>([]);
+  const deleteStudentMutation = useDeleteMutation();
 
-  useEffect(() => {
-    async function fetchStudents() {
-      const availableStudents = await getStudents();
-      setStudents(availableStudents);
-    }
-
-    fetchStudents();
-  }, []);
+  const { data = [], isFetching } = useGetStudents();
 
   const deleteTheStudent = async (studentId: number) => {
-    await deleteStudent(studentId);
-
-    console.log(typeof studentId)
-    setStudents((current) =>
-      current.filter((student) => student.id !== Number(studentId)),
-    );
+    deleteStudentMutation.mutate(studentId);
   };
 
-  const renderActions = (student: Student) => {
-    return (
-      <div className="flex gap-2">
-        <NavLink
-          to={`/students/${student.id}/edit`}
-          className="rounded-md bg-sky-100 px-3 py-1 text-sm font-medium text-sky-700 transition hover:bg-sky-200"
-        >
-          Edit
-        </NavLink>
-
-        <button
-          className="rounded-md bg-red-100 px-3 py-1 text-sm font-medium text-red-700 transition hover:bg-red-200"
-          onClick={() => deleteTheStudent(student.id)}
-        >
-          Delete
-        </button>
-      </div>
-    );
-  };
-
+  if (isFetching) {
+    return <Loader />;
+  }
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -87,8 +60,10 @@ export default function StudentsPage() {
       </div>
       <Table
         columns={studentColumns}
-        data={students}
-        renderActions={renderActions}
+        data={data}
+        renderActions={(student) => (
+          <StudentActions onDelete={deleteTheStudent} student={student} />
+        )}
       />
     </div>
   );

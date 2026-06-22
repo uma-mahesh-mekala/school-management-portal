@@ -3,6 +3,8 @@ package com.school.management.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "student")
@@ -26,6 +28,15 @@ public class Student {
 
     @Column(name = "date_of_joining")
     private LocalDate dateOfJoining;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "student_course",
+            joinColumns = {@JoinColumn(name = "student_id")},
+            inverseJoinColumns = {@JoinColumn(name = "course_id")}
+    )
+    private List<Course> courses;
+
 
     public Student(){}
 
@@ -83,5 +94,25 @@ public class Student {
 
     public void setDateOfJoining(LocalDate dateOfJoining) {
         this.dateOfJoining = dateOfJoining;
+    }
+
+    public List<Course> getCourses() {
+        return courses;
+    }
+
+    public void setCourses(List<Course> courses) {
+        this.courses = courses;
+    }
+
+    public void addCourse(Course theCourse) {
+        if(courses == null) {
+            courses = new ArrayList<>();
+        }
+
+        courses.add(theCourse);
+    }
+
+    public void removeCourse(Course theCourse) {
+        courses.remove(theCourse);
     }
 }
