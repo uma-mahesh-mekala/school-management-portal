@@ -3,6 +3,7 @@ package com.school.management.entity;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "course")
@@ -19,6 +20,8 @@ public class Course {
     @Column(name = "credits")
     private BigDecimal credits;
 
+    @ManyToMany(mappedBy = "courses")
+    private List<Student> students;
     public Course(){}
 
     public Course(String courseName, BigDecimal credits) {
@@ -48,5 +51,13 @@ public class Course {
 
     public void setCredits(BigDecimal credits) {
         this.credits = credits;
+    }
+
+    public List<Student> getStudents() {
+        return students;
+    }
+
+    public void setStudents(List<Student> students) {
+        this.students = students;
     }
 }
