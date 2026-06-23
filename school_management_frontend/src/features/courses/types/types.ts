@@ -28,3 +28,8 @@ export interface UpdateCourseRequest {
   formData: FormData;
   courseId: number;
 }
+
+export interface SearchBarProps {
+  search: string;
+  onSearchChange: (value: string) => void;
+}

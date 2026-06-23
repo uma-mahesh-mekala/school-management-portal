@@ -79,10 +79,16 @@ public class StudentService {
         studentRepository.save(theStudent);
     }
 
-    public List<StudentCoursesResponseDTO> getCourses(String email) {
+    public List<StudentCoursesResponseDTO> getCourses(String email, String search) {
         Student theStudent = studentRepository.findByEmail(email);
         System.out.println("theStudent"+theStudent.getCourses());
-        List<Course> theCourses = courseRepository.findAll();
+        List<Course> theCourses;
+
+        if(search == null || search.isBlank()) {
+            theCourses = courseRepository.findAll();
+        } else {
+            theCourses = courseRepository.findByCourseName(search);
+        }
 
         Set<Integer> enrolledCourseIds = theStudent.getCourses().stream().map(Course::getId).collect(Collectors.toSet());
 

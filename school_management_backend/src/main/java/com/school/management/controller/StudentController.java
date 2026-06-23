@@ -86,10 +86,11 @@ public class StudentController {
     @PreAuthorize("hasAuthority('ROLE_STUDENT')")
     @GetMapping("/me/courses")
     public ResponseEntity<List<StudentCoursesResponseDTO>> getCourses(
-            Authentication authentication
+            Authentication authentication,
+            @RequestParam(required = false) String search
     ){
         String email = authentication.getName();
-        List<StudentCoursesResponseDTO> studentCourses = studentService.getCourses(email);
+        List<StudentCoursesResponseDTO> studentCourses = studentService.getCourses(email, search);
 
         return ResponseEntity.status(HttpStatus.OK).body(studentCourses);
     }

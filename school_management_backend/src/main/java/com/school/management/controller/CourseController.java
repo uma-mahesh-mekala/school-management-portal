@@ -30,8 +30,11 @@ public class CourseController {
 
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STUDENT')")
     @GetMapping("/courses")
-    public ResponseEntity<List<CourseResponseDTO>> fetchAll() {
-        List<CourseResponseDTO> courses = courseService.fetchAllCourses();
+    public ResponseEntity<List<CourseResponseDTO>> fetchAll(
+            @RequestParam(required = false) String search
+    ) {
+        System.out.println("search:"+ search);
+        List<CourseResponseDTO> courses = courseService.fetchAllCourses(search);
 
         return ResponseEntity.status(HttpStatus.OK).body(courses);
     }

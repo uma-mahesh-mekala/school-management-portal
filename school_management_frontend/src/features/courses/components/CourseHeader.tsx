@@ -1,6 +1,8 @@
 import { useHasPermission } from "../../auth/hooks/useHasPermission";
 import { NavLink } from "react-router";
-export function CourseHeader() {
+import { SearchBar } from "./SearchBar";
+import type { SearchBarProps } from "../types/types";
+export function CourseHeader({ search, onSearchChange }: SearchBarProps) {
   const canAddCourse = useHasPermission("course:create");
   return (
     <div>
@@ -8,9 +10,13 @@ export function CourseHeader() {
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Courses</h1>
 
-          <p className="text-sm text-slate-500">
-            Courses offered by the school.
-          </p>
+          <div className="mt-1 mb-1 flex items-center justify-between gap-4">
+            <p className="text-sm text-slate-500">
+              Courses offered by the school.
+            </p>
+
+            <SearchBar search={search} onSearchChange={onSearchChange} />
+          </div>
         </div>
         {canAddCourse ? (
           <NavLink

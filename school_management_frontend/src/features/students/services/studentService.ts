@@ -88,8 +88,14 @@ export async function deleteStudent(id: number) {
   }
 }
 
-export async function getStudentCourses() {
-  const studentCoursesUrl = `${studentsUrl}/me/courses`;
+export async function getStudentCourses(search: string | undefined) {
+  const queryParams = new URLSearchParams();
+
+  if (search?.trim()) {
+    queryParams.append("search", search);
+  }
+  const queryString = queryParams.toString();
+  const studentCoursesUrl = `${studentsUrl}/me/courses?${queryParams ? queryString : ""}`;
   const getStudentCoursesResponse = await apiFetch(studentCoursesUrl);
   return getStudentCoursesResponse.json();
 }

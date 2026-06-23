@@ -27,9 +27,15 @@ public class CourseService {
         return CourseMapper.convertToDTO(savedCourse);
     }
 
-    public List<CourseResponseDTO> fetchAllCourses() {
-        List<Course> tempCourses = courseRepository.findAll();
+    public List<CourseResponseDTO> fetchAllCourses(String search) {
 
+        List<Course> tempCourses;
+        if(search == null || search.isBlank()) {
+            tempCourses = courseRepository.findAll();
+            return tempCourses.stream().map(CourseMapper::convertToDTO).toList();
+        }
+
+        tempCourses = courseRepository.findByCourseName(search);
         List<CourseResponseDTO> courses = tempCourses.stream().map(CourseMapper::convertToDTO).toList();
 
         return courses;
