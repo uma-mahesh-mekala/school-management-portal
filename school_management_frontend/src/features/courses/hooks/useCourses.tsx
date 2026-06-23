@@ -3,12 +3,13 @@ import { useAuth } from "../../auth/context/useAuth";
 import { getCourses } from "../services/courseService";
 import { getStudentCourses } from "../../students/services/studentService";
 
-function useCourses() {
+function useCourses(search: string) {
   const { role } = useAuth();
 
   return useQuery({
-    queryKey: ["courses"],
-    queryFn: role === "ROLE_STUDENT" ? getStudentCourses : getCourses,
+    queryKey: ["courses", { role, search }],
+    queryFn: () =>
+      role === "ROLE_STUDENT" ? getStudentCourses(search) : getCourses(search),
   });
 }
 

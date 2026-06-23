@@ -9,6 +9,8 @@ import { useCourses } from "../hooks/useCourses";
 import { useEnrollment } from "../hooks/useEnrollment";
 import { useUnEnrollment } from "../hooks/useUnEnrollment";
 import { useDeleteMutation } from "../hooks/useDeleteCourse";
+import { useState } from "react";
+import { useDebounce } from "../hooks/useDebounce";
 
 const courseColumns: Column<Course>[] = [
   {
@@ -28,7 +30,11 @@ const courseColumns: Column<Course>[] = [
 export default function CoursesPage() {
   const { role } = useAuth();
 
-  const { data, isError, isLoading, error } = useCourses();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
+  const { data, isError, isLoading, error } = useCourses(debouncedSearchTerm);
 
   const deleteCourseMutation = useDeleteMutation();
 
@@ -58,7 +64,7 @@ export default function CoursesPage() {
 
   return (
     <div>
-      <CourseHeader />
+      <CourseHeader search={searchTerm} onSearchChange={setSearchTerm} />
       <Table
         columns={courseColumns}
         data={data}
