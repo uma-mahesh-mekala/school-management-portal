@@ -10,8 +10,13 @@ import com.school.management.mapper.StudentMapper;
 import com.school.management.repository.Course.CourseRepository;
 import com.school.management.repository.Student.StudentRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -85,9 +90,9 @@ public class StudentService {
         List<Course> theCourses;
 
         if(search == null || search.isBlank()) {
-            theCourses = courseRepository.findAll();
+            theCourses = courseRepository.findAll(Sort.by("courseName"));
         } else {
-            theCourses = courseRepository.findByCourseName(search);
+            theCourses = courseRepository.findByCourseName(search, Sort.by("courseName"));
         }
 
         Set<Integer> enrolledCourseIds = theStudent.getCourses().stream().map(Course::getId).collect(Collectors.toSet());

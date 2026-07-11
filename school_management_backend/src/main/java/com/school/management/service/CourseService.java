@@ -6,6 +6,7 @@ import com.school.management.entity.Course;
 import com.school.management.mapper.CourseMapper;
 import com.school.management.repository.Course.CourseRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,14 +29,13 @@ public class CourseService {
     }
 
     public List<CourseResponseDTO> fetchAllCourses(String search) {
-
         List<Course> tempCourses;
         if(search == null || search.isBlank()) {
-            tempCourses = courseRepository.findAll();
+            tempCourses = courseRepository.findAll(Sort.by("courseName"));
             return tempCourses.stream().map(CourseMapper::convertToDTO).toList();
         }
 
-        tempCourses = courseRepository.findByCourseName(search);
+        tempCourses = courseRepository.findByCourseName(search, Sort.by("courseName"));
         List<CourseResponseDTO> courses = tempCourses.stream().map(CourseMapper::convertToDTO).toList();
 
         return courses;
