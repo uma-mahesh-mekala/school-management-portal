@@ -84,17 +84,19 @@ public class StudentService {
         studentRepository.save(theStudent);
     }
 
-    public List<StudentCoursesResponseDTO> getCourses(String email, String search) {
+    public List<StudentCoursesResponseDTO> getCourses(String email, String search, Integer page, Integer size) {
+        Pageable coursesPageable = PageRequest.of(page, size, Sort.by("courseName"));
         Student theStudent = studentRepository.findByEmail(email);
         System.out.println("theStudent"+theStudent.getCourses());
+        Page<Course> coursePage;
         List<Course> theCourses;
 
         if(search == null || search.isBlank()) {
-            theCourses = courseRepository.findAll(Sort.by("courseName"));
+            coursePage = courseRepository.findAll(coursesPageable);
         } else {
-            theCourses = courseRepository.findByCourseName(search, Sort.by("courseName"));
+            coursePage = courseRepository.findByCourseName(search, coursesPageable);
         }
-
+        theCourses = coursePage.getContent();
         Set<Integer> enrolledCourseIds = theStudent.getCourses().stream().map(Course::getId).collect(Collectors.toSet());
 
         return StudentCourseMapper.toDTO(theCourses, enrolledCourseIds);

@@ -1,4 +1,5 @@
 import type { LoginFormProps } from "../types/types";
+import { Button } from "../../../components/ui/Button";
 
 export default function LoginForm({ onSubmit, errorMessage }: LoginFormProps) {
   const handleSubmit = async (
@@ -79,12 +80,15 @@ export default function LoginForm({ onSubmit, errorMessage }: LoginFormProps) {
           </div>
 
           {/* Submit */}
-          <button
+          <Button
             type="submit"
-            className="w-full rounded-lg bg-sky-600 py-3 text-sm font-semibold text-white transition hover:bg-sky-700"
+            intent={"primary"}
+            size={"medium"}
+            disabled={false}
+            className="text-white"
           >
             Sign In
-          </button>
+          </Button>
         </form>
       </div>
     </div>

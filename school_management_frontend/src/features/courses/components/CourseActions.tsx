@@ -1,6 +1,7 @@
-import { NavLink } from "react-router";
 import type { CourseActionsProps } from "../types/types";
 import { useHasPermission } from "../../auth/hooks/useHasPermission";
+import { NavLinkComponent } from "../../../components/ui/NavLink";
+import { Button } from "../../../components/ui/Button";
 
 export function CourseActions({
   onDelete,
@@ -16,41 +17,53 @@ export function CourseActions({
   return (
     <div className="flex gap-2">
       {canEditCourse && (
-        <NavLink
+        <NavLinkComponent
           to={`/courses/${course.id}/edit`}
-          className="rounded-md bg-sky-100 px-3 py-1 text-sm font-medium text-sky-700 transition hover:bg-sky-200"
+          intent={"secondary"}
+          size={"medium"}
+          disabled={false}
+          className=""
         >
           Edit
-        </NavLink>
+        </NavLinkComponent>
       )}
 
       {canDeleteCourse && (
-        <button
+        <Button
           type="submit"
-          className="rounded-md bg-red-100 px-3 py-1 text-sm font-medium text-red-700 transition hover:bg-red-200"
+          intent={"secondary"}
+          size={"medium"}
+          disabled={false}
+          className="bg-red-100 text-red-700"
           onClick={() => onDelete(course.id)}
         >
           Delete
-        </button>
+        </Button>
       )}
 
       {canUnEnrollCourse &&
         (course.enrolled ? (
-          <button
+          <Button
             type="button"
-            className="rounded-md bg-sky-100 px-3 py-1 text-sm font-medium text-sky-700 transition hover:bg-sky-200"
+            intent={"secondary"}
+            size={"medium"}
+            disabled={false}
+            className=""
             onClick={() => onUnEnroll(course.id)}
           >
             UnEnroll
-          </button>
+          </Button>
         ) : (
-          <button
+          <Button
             type="button"
-            className="rounded-md bg-sky-100 px-3 py-1 text-sm font-medium text-sky-700 transition hover:bg-sky-200"
+            intent={"secondary"}
+            size={"medium"}
+            disabled={false}
+            className=""
             onClick={() => onEnroll(course.id)}
           >
             Enroll
-          </button>
+          </Button>
         ))}
     </div>
   );

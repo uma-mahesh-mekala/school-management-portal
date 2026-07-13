@@ -6,6 +6,9 @@ import com.school.management.entity.Course;
 import com.school.management.mapper.CourseMapper;
 import com.school.management.repository.Course.CourseRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -28,14 +31,18 @@ public class CourseService {
         return CourseMapper.convertToDTO(savedCourse);
     }
 
-    public List<CourseResponseDTO> fetchAllCourses(String search) {
+    public List<CourseResponseDTO> fetchAllCourses(String search, Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("courseName"));
+        Page coursePage;
         List<Course> tempCourses;
         if(search == null || search.isBlank()) {
-            tempCourses = courseRepository.findAll(Sort.by("courseName"));
+            coursePage = courseRepository.findAll(pageable);
+            tempCourses = coursePage.getContent();
             return tempCourses.stream().map(CourseMapper::convertToDTO).toList();
         }
 
-        tempCourses = courseRepository.findByCourseName(search, Sort.by("courseName"));
+        coursePage = courseRepository.findByCourseName(search, pageable);
+        tempCourses = coursePage.getContent();
         List<CourseResponseDTO> courses = tempCourses.stream().map(CourseMapper::convertToDTO).toList();
 
         return courses;

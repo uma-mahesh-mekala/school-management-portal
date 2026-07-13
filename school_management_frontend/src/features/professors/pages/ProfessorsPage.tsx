@@ -1,11 +1,11 @@
 import Table from "../../../components/common/Table";
-import { NavLink } from "react-router";
 import type { Professor } from "../types/types";
 import type { Column } from "../../../components/types/types";
 import { useGetProfessor } from "../hooks/useGetProfessors";
 import { useDeleteMutation } from "../hooks/useDeleteMutation";
 import { Loader } from "../../../components/ui/Loader";
 import { ProfessorActions } from "../components/ProfessorActions";
+import { NavLinkComponent } from "../../../components/ui/NavLink";
 
 const professorColumns: Column<Professor>[] = [
   {
@@ -54,12 +54,9 @@ export default function ProfessorsPage() {
           </p>
         </div>
 
-        <NavLink
-          to="/professors/new"
-          className="rounded-lg bg-sky-600 px-4 py-2 text-white font-medium hover:bg-sky-700 transition"
-        >
+        <NavLinkComponent to="/professors/new" className="">
           Add Professor
-        </NavLink>
+        </NavLinkComponent>
       </div>
       <Table
         columns={professorColumns}

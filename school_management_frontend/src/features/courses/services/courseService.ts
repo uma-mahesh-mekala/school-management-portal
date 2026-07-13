@@ -19,12 +19,18 @@ export async function addCourse(formData: FormData) {
   return addNewCourseResponse.json();
 }
 
-export async function getCourses(search: string | undefined) {
+export async function getCourses(
+  search: string | undefined,
+  page: number,
+  size: number,
+) {
   const queryParams = new URLSearchParams();
 
   if (search?.trim()) {
     queryParams.append("search", search);
   }
+  queryParams.append("page", page.toString());
+  queryParams.append("size", size.toString());
   const queryString = queryParams.toString();
   const getCoursesResponse = await apiFetch(
     `${coursesUrl}?${queryParams ? queryString : ""}`,

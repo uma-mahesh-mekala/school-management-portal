@@ -87,10 +87,12 @@ public class StudentController {
     @GetMapping("/me/courses")
     public ResponseEntity<List<StudentCoursesResponseDTO>> getCourses(
             Authentication authentication,
-            @RequestParam(required = false) String search
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size
     ){
         String email = authentication.getName();
-        List<StudentCoursesResponseDTO> studentCourses = studentService.getCourses(email, search);
+        List<StudentCoursesResponseDTO> studentCourses = studentService.getCourses(email, search, page, size);
 
         return ResponseEntity.status(HttpStatus.OK).body(studentCourses);
     }

@@ -1,11 +1,11 @@
 import Table from "../../../components/common/Table";
-import { NavLink } from "react-router";
 import type { Student } from "../types/types";
 import type { Column } from "../../../components/types/types";
 import { useDeleteMutation } from "../hooks/useDeleteMutation";
 import { useGetStudents } from "../hooks/useGetStudents";
 import { StudentActions } from "../components/StudentActions";
 import { Loader } from "../../../components/ui/Loader";
+import { NavLinkComponent } from "../../../components/ui/NavLink";
 
 const studentColumns: Column<Student>[] = [
   {
@@ -51,12 +51,9 @@ export default function StudentsPage() {
           <p className="text-sm text-slate-500">Total Students in School.</p>
         </div>
 
-        <NavLink
-          to="/students/new"
-          className="rounded-lg bg-sky-600 px-4 py-2 text-white font-medium hover:bg-sky-700 transition"
-        >
+        <NavLinkComponent to="/students/new" className="">
           Add Student
-        </NavLink>
+        </NavLinkComponent>
       </div>
       <Table
         columns={studentColumns}

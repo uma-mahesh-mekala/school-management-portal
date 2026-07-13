@@ -30,11 +30,21 @@ const courseColumns: Column<Course>[] = [
 export default function CoursesPage() {
   const { role } = useAuth();
 
+  const [page, setPage] = useState<number>(0);
+  const [rowsPerPage] = useState<number>(10);
+
+  const handleNext = () => setPage((p) => p + 1);
+  const handlePrev = () => setPage((p) => p - 1);
+
   const [searchTerm, setSearchTerm] = useState("");
 
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-  const { data, isError, isLoading, error } = useCourses(debouncedSearchTerm);
+  const { data, isError, isLoading, error } = useCourses(
+    debouncedSearchTerm,
+    page,
+    rowsPerPage,
+  );
 
   const deleteCourseMutation = useDeleteMutation();
 
@@ -78,6 +88,21 @@ export default function CoursesPage() {
           />
         )}
       />
+      <div className="mt-4 flex flex-row justify-end gap-4">
+        <button
+          hidden={page === 0}
+          className="rounded-md bg-sky-100 px-3 py-1 text-sm font-medium text-sky-700 transition hover:bg-sky-200"
+          onClick={handlePrev}
+        >
+          Prev
+        </button>
+        <button
+          className="rounded-md bg-sky-100 px-3 py-1 text-sm font-medium text-sky-700 transition hover:bg-sky-200"
+          onClick={handleNext}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }

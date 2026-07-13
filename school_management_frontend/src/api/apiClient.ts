@@ -1,7 +1,6 @@
 import authStorage from "../features/auth/utils/authStorage";
 
 const apiFetch = async (url: string, options: RequestInit = {}) => {
-  console.log("I am here");
   const accessToken = authStorage.getAccessToken();
   const response = await fetch(url, {
     ...options,
