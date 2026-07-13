@@ -1,6 +1,7 @@
 import { useHasPermission } from "../../auth/hooks/useHasPermission";
 import type { ProfessorActionsProps } from "../types/types";
-import { NavLink } from "react-router";
+import { NavLinkComponent } from "../../../components/ui/NavLink";
+import { Button } from "../../../components/ui/Button";
 
 export function ProfessorActions({
   professor,
@@ -12,21 +13,28 @@ export function ProfessorActions({
   return (
     <div className="flex gap-2">
       {canEditProfessor ? (
-        <NavLink
+        <NavLinkComponent
           to={`/professors/${professor.id}/edit`}
-          className="rounded-md bg-sky-100 px-3 py-1 text-sm font-medium text-sky-700 transition hover:bg-sky-200"
+          intent={"secondary"}
+          size={"medium"}
+          disabled={false}
+          className=""
         >
           Edit
-        </NavLink>
+        </NavLinkComponent>
       ) : null}
 
       {canDeleteProfessor ? (
-        <button
-          className="rounded-md bg-red-100 px-3 py-1 text-sm font-medium text-red-700 transition hover:bg-red-200"
+        <Button
+          type="submit"
+          intent={"secondary"}
+          size={"medium"}
+          disabled={false}
+          className="bg-red-100 text-red-700"
           onClick={() => onDelete(professor.id)}
         >
           Delete
-        </button>
+        </Button>
       ) : null}
     </div>
   );

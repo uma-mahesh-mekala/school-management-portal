@@ -1,4 +1,5 @@
 import type { StudentFormProps } from "../types/types";
+import { Button } from "../../../components/ui/Button";
 
 export default function StudentForm({
   title,
@@ -125,19 +126,23 @@ export default function StudentForm({
 
           {/* Buttons */}
           <div className="flex justify-end gap-3 pt-2">
-            <button
+            <Button
               type="button"
-              className="rounded-lg border border-slate-300 px-5 py-2 text-slate-700 transition hover:bg-slate-50"
+              intent={"tertiary"}
+              size={"medium"}
+              className=""
             >
               Cancel
-            </button>
+            </Button>
 
-            <button
+            <Button
               type="submit"
+              intent={"primary"}
+              size={"medium"}
               className="rounded-lg bg-sky-600 px-5 py-2 text-white font-medium transition hover:bg-sky-700"
             >
               {submitText}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
