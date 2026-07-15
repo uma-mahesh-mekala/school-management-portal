@@ -77,7 +77,7 @@ export default function CoursesPage() {
       <CourseHeader search={searchTerm} onSearchChange={setSearchTerm} />
       <Table
         columns={courseColumns}
-        data={data}
+        data={data.content}
         renderActions={(course) => (
           <CourseActions
             course={course}
