@@ -1,5 +1,6 @@
 package com.school.management.service;
 
+import com.school.management.common.pagination.PagingResult;
 import com.school.management.dto.CourseRequestDTO;
 import com.school.management.dto.CourseResponseDTO;
 import com.school.management.entity.Course;
@@ -31,21 +32,19 @@ public class CourseService {
         return CourseMapper.convertToDTO(savedCourse);
     }
 
-    public List<CourseResponseDTO> fetchAllCourses(String search, Integer page, Integer size) {
+    public PagingResult<CourseResponseDTO> fetchAllCourses(String search, Integer page, Integer size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("courseName"));
-        Page coursePage;
+        Page<Course> coursePage;
         List<Course> tempCourses;
         if(search == null || search.isBlank()) {
             coursePage = courseRepository.findAll(pageable);
-            tempCourses = coursePage.getContent();
-            return tempCourses.stream().map(CourseMapper::convertToDTO).toList();
+        } else {
+            coursePage = courseRepository.findByCourseName(search, pageable);
         }
 
-        coursePage = courseRepository.findByCourseName(search, pageable);
-        tempCourses = coursePage.getContent();
-        List<CourseResponseDTO> courses = tempCourses.stream().map(CourseMapper::convertToDTO).toList();
+        Page<CourseResponseDTO> dtoPage = coursePage.map(CourseMapper::convertToDTO);
 
-        return courses;
+        return PagingResult.from(dtoPage);
     }
 
     public CourseResponseDTO findById(Integer id) {
