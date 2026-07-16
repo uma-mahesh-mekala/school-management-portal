@@ -33,7 +33,7 @@ const studentColumns: Column<Student>[] = [
 export default function StudentsPage() {
   const deleteStudentMutation = useDeleteMutation();
 
-  const { data = [], isFetching } = useGetStudents();
+  const { data, isFetching } = useGetStudents();
 
   const deleteTheStudent = async (studentId: number) => {
     deleteStudentMutation.mutate(studentId);
@@ -57,7 +57,7 @@ export default function StudentsPage() {
       </div>
       <Table
         columns={studentColumns}
-        data={data}
+        data={data.content}
         renderActions={(student) => (
           <StudentActions onDelete={deleteTheStudent} student={student} />
         )}

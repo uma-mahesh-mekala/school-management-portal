@@ -1,11 +1,16 @@
 package com.school.management.service;
 
+import com.school.management.common.pagination.PagingResult;
 import com.school.management.dto.ProfessorRequestDTO;
 import com.school.management.dto.ProfessorResponseDTO;
 import com.school.management.entity.Professor;
 import com.school.management.mapper.ProfessorMapper;
 import com.school.management.repository.Professor.ProfessorRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,10 +32,12 @@ public class ProfessorService {
         return ProfessorMapper.convertToDTO(savedProfessor);
     }
 
-    public List<ProfessorResponseDTO> findALl() {
-        List<Professor> tempProfessors = professorRepository.findAll();
+    public PagingResult<ProfessorResponseDTO> findALl(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("firstName"));
+        Page<Professor> professorPage = professorRepository.findAll(pageable);
 
-        return tempProfessors.stream().map(ProfessorMapper::convertToDTO).toList();
+        Page<ProfessorResponseDTO> dtoPage = professorPage.map(ProfessorMapper::convertToDTO);
+        return PagingResult.from(dtoPage);
     }
 
     public ProfessorResponseDTO findById(Integer id) {

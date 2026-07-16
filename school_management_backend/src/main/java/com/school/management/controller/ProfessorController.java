@@ -1,8 +1,10 @@
 package com.school.management.controller;
 
+import com.school.management.common.pagination.PagingResult;
 import com.school.management.dto.ProfessorRequestDTO;
 import com.school.management.dto.ProfessorResponseDTO;
 import com.school.management.service.ProfessorService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -28,8 +30,11 @@ public class ProfessorController {
     }
 
     @GetMapping("/professors")
-    public ResponseEntity<List<ProfessorResponseDTO>> fetchAllProfessors() {
-        List<ProfessorResponseDTO> tempProfessors = professorService.findALl();
+    public ResponseEntity<PagingResult<ProfessorResponseDTO>> fetchAllProfessors(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        PagingResult<ProfessorResponseDTO> tempProfessors = professorService.findALl(page, size);
 
         return ResponseEntity.status(HttpStatus.OK).body(tempProfessors);
     }

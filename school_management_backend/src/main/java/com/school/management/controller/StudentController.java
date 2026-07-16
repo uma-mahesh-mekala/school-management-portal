@@ -1,5 +1,6 @@
 package com.school.management.controller;
 
+import com.school.management.common.pagination.PagingResult;
 import com.school.management.dto.StudentCoursesResponseDTO;
 import com.school.management.dto.StudentRequestDTO;
 import com.school.management.dto.StudentResponseDTO;
@@ -33,8 +34,12 @@ public class StudentController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<StudentResponseDTO>> getAllStudents() {
-        List<StudentResponseDTO> students = this.studentService.getAll();
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<PagingResult<StudentResponseDTO>> getAllStudents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        PagingResult<StudentResponseDTO> students = this.studentService.getAll(page, size);
 
         return ResponseEntity.status(HttpStatus.OK).body(students);
     }
@@ -85,14 +90,14 @@ public class StudentController {
 
     @PreAuthorize("hasAuthority('ROLE_STUDENT')")
     @GetMapping("/me/courses")
-    public ResponseEntity<List<StudentCoursesResponseDTO>> getCourses(
+    public ResponseEntity<PagingResult<StudentCoursesResponseDTO>> getCourses(
             Authentication authentication,
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size
     ){
         String email = authentication.getName();
-        List<StudentCoursesResponseDTO> studentCourses = studentService.getCourses(email, search, page, size);
+        PagingResult<StudentCoursesResponseDTO> studentCourses = studentService.getCourses(email, search, page, size);
 
         return ResponseEntity.status(HttpStatus.OK).body(studentCourses);
     }
