@@ -1,5 +1,6 @@
 package com.school.management.service;
 
+import com.school.management.common.pagination.PagingResult;
 import com.school.management.dto.StudentCoursesResponseDTO;
 import com.school.management.dto.StudentRequestDTO;
 import com.school.management.dto.StudentResponseDTO;
@@ -47,10 +48,13 @@ public class StudentService {
         return StudentMapper.convertToDTO(savedStudent);
     }
 
-    public List<StudentResponseDTO> getAll() {
-        List<Student> tempStudents = studentRepository.findAll();
+    public PagingResult<StudentResponseDTO> getAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("firstName"));
 
-        return tempStudents.stream().map(StudentMapper::convertToDTO).toList();
+        Page<Student> studentPage = studentRepository.findAll(pageable);
+        Page<StudentResponseDTO> dtoPage = studentPage.map(StudentMapper::convertToDTO);
+
+        return PagingResult.from(dtoPage);
     }
 
     public StudentResponseDTO getStudentById(Integer id) {
@@ -84,7 +88,7 @@ public class StudentService {
         studentRepository.save(theStudent);
     }
 
-    public List<StudentCoursesResponseDTO> getCourses(String email, String search, Integer page, Integer size) {
+    public PagingResult<StudentCoursesResponseDTO> getCourses(String email, String search, Integer page, Integer size) {
         Pageable coursesPageable = PageRequest.of(page, size, Sort.by("courseName"));
         Student theStudent = studentRepository.findByEmail(email);
         System.out.println("theStudent"+theStudent.getCourses());
@@ -99,7 +103,8 @@ public class StudentService {
         theCourses = coursePage.getContent();
         Set<Integer> enrolledCourseIds = theStudent.getCourses().stream().map(Course::getId).collect(Collectors.toSet());
 
-        return StudentCourseMapper.toDTO(theCourses, enrolledCourseIds);
+        Page<StudentCoursesResponseDTO> studentCoursesPage = coursePage.map((Course course) -> new StudentCoursesResponseDTO(course.getId(), course.getCourseName(), course.getCredits(), enrolledCourseIds.contains(course.getId())));
+        return PagingResult.from(studentCoursesPage);
     }
 
     @Transactional

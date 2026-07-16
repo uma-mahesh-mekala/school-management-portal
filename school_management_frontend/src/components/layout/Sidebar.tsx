@@ -1,8 +1,11 @@
 import { BookOpen, GraduationCap, Users, Settings } from "lucide-react";
 
 import { NavLink } from "react-router";
+import { useHasPermission } from "../../features/auth/hooks/useHasPermission";
 
 export default function Sidebar() {
+  const canSeeStudents = useHasPermission("students:view");
+
   return (
     <aside className="w-64 border-r border-slate-200 bg-white sticky">
       <nav className="flex flex-col gap-2 p-4">
@@ -20,7 +23,6 @@ export default function Sidebar() {
           <BookOpen size={20} />
           <span>Courses</span>
         </NavLink>
-
         <NavLink
           to="/professors"
           className={({ isActive }) =>
@@ -34,20 +36,21 @@ export default function Sidebar() {
           <GraduationCap size={20} />
           <span>Professors</span>
         </NavLink>
-
-        <NavLink
-          to="/students"
-          className={({ isActive }) =>
-            `flex items-center gap-3 rounded-xl px-4 py-3 transition ${
-              isActive
-                ? "bg-sky-100 text-sky-700 font-medium"
-                : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
-            }`
-          }
-        >
-          <Users size={20} />
-          <span>Students</span>
-        </NavLink>
+        {canSeeStudents ? (
+          <NavLink
+            to="/students"
+            className={({ isActive }) =>
+              `flex items-center gap-3 rounded-xl px-4 py-3 transition ${
+                isActive
+                  ? "bg-sky-100 text-sky-700 font-medium"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+              }`
+            }
+          >
+            <Users size={20} />
+            <span>Students</span>
+          </NavLink>
+        ) : null}
       </nav>
 
       {/* Bottom Section */}

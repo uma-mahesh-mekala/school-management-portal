@@ -7,6 +7,8 @@ public class ProfessorResponseDTO {
 
     private String lastName;
 
+    private String fullName;
+
     private String email;
 
     private String department;
@@ -17,6 +19,7 @@ public class ProfessorResponseDTO {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.fullName = this.firstName.concat(" ").concat(this.lastName);
         this.email = email;
         this.department = department;
         this.designation = designation;
@@ -28,6 +31,14 @@ public class ProfessorResponseDTO {
 
     public String getLastName() {
         return lastName;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getEmail() {

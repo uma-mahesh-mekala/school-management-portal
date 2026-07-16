@@ -9,6 +9,8 @@ public class StudentResponseDTO {
 
     private String lastName;
 
+    private String fullName;
+
     private String email;
 
     private LocalDate dateOfBirth;
@@ -21,6 +23,7 @@ public class StudentResponseDTO {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.fullName = firstName.concat(" ").concat(lastName);
         this.email = email;
         this.dateOfBirth = dateOfBirth;
         this.dateOfJoining = dateOfJoining;
@@ -48,6 +51,14 @@ public class StudentResponseDTO {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getEmail() {

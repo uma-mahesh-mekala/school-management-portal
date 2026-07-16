@@ -1,5 +1,5 @@
 import { apiFetch } from "../../../api/apiClient";
-import type { Professor, Department } from "../types/types";
+import type { Department } from "../types/types";
 
 const professorsUrl = `${import.meta.env.VITE_BACKEND_URL}/professors`;
 
@@ -30,10 +30,7 @@ export async function getProfessors() {
   const getProfessorResponse = await apiFetch(professorsUrl);
 
   const professors = await getProfessorResponse.json();
-  return professors.map((professor: Professor) => ({
-    ...professor,
-    fullName: `${professor.firstName} ${professor.lastName}`,
-  }));
+  return professors;
 }
 
 export async function getProfessorById(id: number) {

@@ -31,7 +31,7 @@ const professorColumns: Column<Professor>[] = [
 ];
 
 export default function ProfessorsPage() {
-  const { data = [], isFetching } = useGetProfessor();
+  const { data, isFetching } = useGetProfessor();
 
   const deleteMutation = useDeleteMutation();
 
@@ -60,7 +60,7 @@ export default function ProfessorsPage() {
       </div>
       <Table
         columns={professorColumns}
-        data={data}
+        data={data.content}
         renderActions={(professor) => (
           <ProfessorActions
             professor={professor}

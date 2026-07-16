@@ -1,5 +1,4 @@
 import { apiFetch } from "../../../api/apiClient";
-import type { Student } from "../types/types";
 
 const studentsUrl = `${import.meta.env.VITE_BACKEND_URL}/students`;
 
@@ -30,10 +29,7 @@ export async function getStudents() {
   const getStudentsResponse = await apiFetch(studentsUrl);
   const students = await getStudentsResponse.json();
 
-  return students.map((student: Student) => ({
-    ...student,
-    fullName: `${student.firstName} ${student.lastName}`,
-  }));
+  return students;
 }
 
 export async function getStudentById(id: number) {
