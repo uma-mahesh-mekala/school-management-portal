@@ -1,0 +1,596 @@
+openapi: 3.0.3
+info:
+  title: School Management Portal API
+  version: 1.0.0
+  description: OpenAPI 3.0 Specification for Node.js Fastify School Management Backend
+
+servers:
+  - url: http://localhost:8080
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    LoginRequestDTO:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    LoginResponseDTO:
+      type: object
+      properties:
+        accessToken:
+          type: string
+
+    UserRequestDTO:
+      type: object
+      required:
+        - username
+        - password
+        - role
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+          default: ROLE_STUDENT
+
+    UserResponseDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        role:
+          type: string
+
+    StudentRequestDTO:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - dateOfBirth
+        - dateOfJoining
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        dateOfBirth:
+          type: string
+          format: date
+        dateOfJoining:
+          type: string
+          format: date
+
+    StudentResponseDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        dateOfBirth:
+          type: string
+        dateOfJoining:
+          type: string
+
+    ProfessorRequestDTO:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - department
+        - designation
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        department:
+          type: string
+        designation:
+          type: string
+
+    ProfessorResponseDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        department:
+          type: string
+        designation:
+          type: string
+
+    CourseRequestDTO:
+      type: object
+      required:
+        - courseName
+        - credits
+      properties:
+        courseName:
+          type: string
+        credits:
+          type: number
+
+    CourseResponseDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+        courseName:
+          type: string
+        credits:
+          type: number
+
+    StudentCourseResponseDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+        courseName:
+          type: string
+        credits:
+          type: number
+        enrolled:
+          type: boolean
+
+    ErrorResponseDTO:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+
+paths:
+  /api/auth/login:
+    post:
+      summary: Login user
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequestDTO'
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponseDTO'
+        '401':
+          description: Invalid credentials
+
+  /api/auth/register:
+    post:
+      summary: Register / add a new app user
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequestDTO'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDTO'
+        '409':
+          description: Username already exists
+
+  /api/auth/validate:
+    get:
+      summary: Validate JWT token
+      operationId: validateToken
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Token is valid
+
+  /api/students:
+    post:
+      summary: Add a new student
+      operationId: addStudent
+      x-roles: [ROLE_ADMIN]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentRequestDTO'
+      responses:
+        '201':
+          description: Student created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentResponseDTO'
+
+    get:
+      summary: Get all students paginated
+      operationId: getAllStudents
+      x-roles: [ROLE_ADMIN]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Paginated list of students
+
+  /api/students/{studentId}:
+    get:
+      summary: Get student by ID
+      operationId: getStudentById
+      x-roles: [ROLE_ADMIN, ROLE_STUDENT]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Student details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentResponseDTO'
+
+    put:
+      summary: Update student
+      operationId: updateStudent
+      x-roles: [ROLE_ADMIN]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentRequestDTO'
+      responses:
+        '200':
+          description: Updated student
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentResponseDTO'
+
+    delete:
+      summary: Delete student
+      operationId: deleteStudent
+      x-roles: [ROLE_ADMIN]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '240':
+          description: Student deleted
+        '204':
+          description: Student deleted
+
+  /api/students/courses/{courseId}/enroll:
+    post:
+      summary: Enroll student in a course
+      operationId: enrollCourse
+      x-roles: [ROLE_STUDENT]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Enrolled successfully
+
+  /api/students/courses/{courseId}/unenroll:
+    post:
+      summary: Unenroll student from a course
+      operationId: unEnrollCourse
+      x-roles: [ROLE_STUDENT]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Unenrolled successfully
+
+  /api/students/me/courses:
+    get:
+      summary: Get courses for currently logged in student
+      operationId: getStudentCourses
+      x-roles: [ROLE_STUDENT]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Paginated courses with enrollment state
+
+  /api/professors:
+    post:
+      summary: Add a new professor
+      operationId: addProfessor
+      x-roles: [ROLE_ADMIN]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfessorRequestDTO'
+      responses:
+        '201':
+          description: Professor created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfessorResponseDTO'
+
+    get:
+      summary: Fetch all professors paginated
+      operationId: getAllProfessors
+      x-roles: [ROLE_ADMIN, ROLE_STUDENT]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Paginated professors list
+
+  /api/professors/{professorId}:
+    get:
+      summary: Get professor by ID
+      operationId: getProfessorById
+      x-roles: [ROLE_ADMIN, ROLE_STUDENT]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: professorId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Professor details
+
+    put:
+      summary: Update professor
+      operationId: updateProfessor
+      x-roles: [ROLE_ADMIN]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: professorId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfessorRequestDTO'
+      responses:
+        '200':
+          description: Updated professor
+
+    delete:
+      summary: Delete professor
+      operationId: deleteProfessor
+      x-roles: [ROLE_ADMIN]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: professorId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Professor deleted
+
+  /api/courses:
+    post:
+      summary: Add a new course
+      operationId: addCourse
+      x-roles: [ROLE_ADMIN]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseRequestDTO'
+      responses:
+        '201':
+          description: Course created
+
+    get:
+      summary: Fetch all courses
+      operationId: getAllCourses
+      x-roles: [ROLE_STUDENT, ROLE_ADMIN]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Paginated courses list
+
+  /api/courses/{courseId}:
+    get:
+      summary: Get course by ID
+      operationId: getCourseById
+      x-roles: [ROLE_ADMIN, ROLE_STUDENT]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Course details
+
+    put:
+      summary: Update course
+      operationId: updateCourse
+      x-roles: [ROLE_ADMIN]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseRequestDTO'
+      responses:
+        '200':
+          description: Course updated
+
+    delete:
+      summary: Delete course
+      operationId: deleteCourse
+      x-roles: [ROLE_ADMIN]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Course deleted

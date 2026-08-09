@@ -1,0 +1,61 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model AppUser {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+  role     String
+
+  @@map("app_user")
+}
+
+model Student {
+  id            Int      @id @default(autoincrement())
+  firstName     String   @map("first_name")
+  lastName      String   @map("last_name")
+  email         String   @unique
+  dateOfBirth   DateTime @map("date_of_birth") @db.Date
+  dateOfJoining DateTime @map("date_of_joining") @db.Date
+
+  courses StudentCourse[]
+
+  @@map("student")
+}
+
+model Professor {
+  id          Int    @id @default(autoincrement())
+  firstName   String @map("first_name")
+  lastName    String @map("last_name")
+  email       String @unique
+  department  String
+  designation String
+
+  @@map("professor")
+}
+
+model Course {
+  id         Int     @id @default(autoincrement())
+  courseName String  @map("course_name") @db.VarChar(30)
+  credits    Decimal @db.Decimal(10, 2)
+
+  students StudentCourse[]
+
+  @@map("course")
+}
+
+model StudentCourse {
+  studentId Int     @map("student_id")
+  courseId  Int     @map("course_id")
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course    Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@id([studentId, courseId])
+  @@map("student_course")
+}
