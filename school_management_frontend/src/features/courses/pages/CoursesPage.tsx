@@ -11,6 +11,7 @@ import { useUnEnrollment } from "../hooks/useUnEnrollment";
 import { useDeleteMutation } from "../hooks/useDeleteCourse";
 import { useState } from "react";
 import { useDebounce } from "../hooks/useDebounce";
+import CourseForm from "../components/CourseForm";
 
 const courseColumns: Column<Course>[] = [
   {
@@ -32,6 +33,7 @@ export default function CoursesPage() {
 
   const [page, setPage] = useState<number>(0);
   const [rowsPerPage] = useState<number>(10);
+  const [showAddCourseModal, setShowAddCourseModel] = useState<boolean>(false);
 
   const handleNext = () => setPage((p) => p + 1);
   const handlePrev = () => setPage((p) => p - 1);
@@ -88,6 +90,16 @@ export default function CoursesPage() {
           />
         )}
       />
+      {showAddCourseModal ? (
+        <div className="fixed bg-black/50 min-h-screen z-10 w-screen flex justify-center items-center top-0 left-0">
+          <CourseForm
+            title="Add Course"
+            description="Add a new course to make available for students"
+            submitAction={() => 1}
+            submitText="Add Course"
+          />
+        </div>
+      ) : null}
       <div className="mt-4 flex flex-row justify-end gap-4">
         <button
           hidden={page === 0}
@@ -101,6 +113,13 @@ export default function CoursesPage() {
           onClick={handleNext}
         >
           Next
+        </button>
+
+        <button
+          className="rounded-md bg-sky-100 px-3 py-1 text-sm font-medium text-sky-700 transition hover:bg-sky-200"
+          onClick={() => setShowAddCourseModel(!showAddCourseModal)}
+        >
+          Add Course
         </button>
       </div>
     </div>
