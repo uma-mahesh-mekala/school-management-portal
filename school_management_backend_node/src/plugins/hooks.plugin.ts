@@ -14,7 +14,7 @@ async function hooksPlugin(fastify: FastifyInstance) {
         return reply.status(401).send({ status: 401, message: 'Unauthorized' });
       }
 
-      const user = request.user as { username: string; role: string };
+      const user = request.user as { email: string; role: string };
       if (!user || !user.role || !allowedRoles.includes(user.role)) {
         return reply.status(403).send({ status: 403, message: 'Access Denied: Insufficient Privileges' });
       }

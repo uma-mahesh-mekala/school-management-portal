@@ -3,6 +3,7 @@ import { Prisma, Course, StudentCourse } from '@prisma/client';
 import { AuthService } from '../auth/auth.service.js';
 import { buildPagingResult } from '../../utils/pagination.js';
 import { ROLES, REDIS_KEYS, REDIS_TTL } from '../../configs/app.constants.js';
+import { CourseService } from '../course/course.service.js';
 
 export interface StudentRequestDTO {
   firstName: string;
@@ -14,9 +15,11 @@ export interface StudentRequestDTO {
 
 export class StudentService {
   private authService: AuthService;
+  private courseService: CourseService;
 
   constructor(private fastify: FastifyInstance) {
     this.authService = new AuthService(fastify);
+    this.courseService = new CourseService(fastify);
   }
 
   async addStudent(dto: StudentRequestDTO) {
@@ -34,13 +37,28 @@ export class StudentService {
       // Automatically create AppUser for student
       await this.authService.createUser(dto.email, 'Welcome@123', ROLES.STUDENT);
 
+      this.fastify.invalidateCache("students")
       return newStudent;
     });
 
-    return this.formatStudentDTO(student);
+    return { statusCode: 200, body: this.formatStudentDTO(student) };
   }
 
   async getAllStudents(page: number = 0, size: number = 10) {
+    this.fastify.log.trace(`getAllStudents: service - starts`)
+
+    const cacheKey = `${REDIS_KEYS.STUDENTS_PREFIX}:p:${page}:s:${size}`
+
+    if(this.fastify.cacheClient.has(cacheKey)) {
+      this.fastify.log.trace(`getAllStudents:service - cachehit`);
+      const students = this.fastify.cacheClient.get(cacheKey);
+      return {
+        statusCode: 200,
+        body: JSON.parse(students)
+      }
+    }
+
+    this.fastify.log.trace(`getAllStudents:service - cachemiss fetching from DB`);
     const skip = page * size;
     const [students, totalElements] = await Promise.all([
       this.fastify.prisma.student.findMany({
@@ -52,7 +70,10 @@ export class StudentService {
     ]);
 
     const content = students.map((s: any) => this.formatStudentDTO(s));
-    return buildPagingResult(content, totalElements, page, size);
+    const result = buildPagingResult(content, totalElements, page, size);
+
+    this.fastify.cacheClient.set(cacheKey, JSON.stringify(result));
+    return { statusCode: 200, body: result };
   }
 
   async getStudentById(id: number) {
@@ -61,12 +82,14 @@ export class StudentService {
     });
 
     if (!student) {
-      const err = new Error('Student not found') as any;
-      err.statusCode = 404;
-      throw err;
+      const error = await this.fastify.getErrorMessage(this.fastify.errorConstants.STUDENT_NOT_FOUND);
+      return {
+        statusCode: 404,
+        body: error
+      };
     }
 
-    return this.formatStudentDTO(student);
+    return { statusCode: 200, body: this.formatStudentDTO(student) };
   }
 
   async updateStudent(id: number, dto: StudentRequestDTO) {
@@ -81,7 +104,9 @@ export class StudentService {
       }
     });
 
-    return this.formatStudentDTO(updated);
+    this.fastify.invalidateCache("students")
+
+    return { statusCode: 200, body: this.formatStudentDTO(updated) };
   }
 
   async deleteStudent(id: number) {
@@ -89,11 +114,17 @@ export class StudentService {
       await this.fastify.prisma.student.delete({
         where: { id }
       });
+
+      this.fastify.invalidateCache("students")
+
     } catch (error) {
-      const err = new Error('Student not found') as any;
-      err.statusCode = 404;
-      throw err;
+      const e = await this.fastify.getErrorMessage(this.fastify.errorConstants.STUDENT_NOT_FOUND);
+      return {
+        statusCode: 404,
+        body: e
+      };
     }
+    return { statusCode: 200, body: { success: true } };
   }
 
   async enrollStudentInCourse(email: string, courseId: number) {
@@ -102,9 +133,8 @@ export class StudentService {
     });
 
     if (!student) {
-      const err = new Error('Student not found') as any;
-      err.statusCode = 404;
-      throw err;
+      const error = await this.fastify.getErrorMessage(this.fastify.errorConstants.STUDENT_NOT_FOUND);
+      return { statusCode: 404, body: error };
     }
 
     const course = await this.fastify.prisma.course.findUnique({
@@ -112,9 +142,8 @@ export class StudentService {
     });
 
     if (!course) {
-      const err = new Error('Course not found') as any;
-      err.statusCode = 404;
-      throw err;
+      const error = await this.fastify.getErrorMessage(this.fastify.errorConstants.COURSE_NOT_FOUND);
+      return { statusCode: 404, body: error };
     }
 
     await this.fastify.prisma.studentCourse.upsert({
@@ -137,6 +166,7 @@ export class StudentService {
       await this.fastify.redis.sadd(redisKey, courseId.toString());
       await this.fastify.redis.expire(redisKey, REDIS_TTL.STUDENT_ENROLLED);
     }
+    return { statusCode: 200, body: { success: true } };
   }
 
   async unEnrollStudentInCourse(email: string, courseId: number) {
@@ -145,9 +175,8 @@ export class StudentService {
     });
 
     if (!student) {
-      const err = new Error('Student not found') as any;
-      err.statusCode = 404;
-      throw err;
+      const error = await this.fastify.getErrorMessage(this.fastify.errorConstants.STUDENT_NOT_FOUND);
+      return { statusCode: 404, body: error };
     }
 
     await this.fastify.prisma.studentCourse.deleteMany({
@@ -162,6 +191,7 @@ export class StudentService {
       const redisKey = `${REDIS_KEYS.STUDENT_ENROLLED_PREFIX}:${student.id}`;
       await this.fastify.redis.srem(redisKey, courseId.toString());
     }
+    return { statusCode: 200, body: { success: true } };
   }
 
   async getCoursesForStudent(email: string, search?: string, page: number = 0, size: number = 10) {
@@ -173,53 +203,44 @@ export class StudentService {
     });
 
     if (!student) {
-      const err = new Error('Student not found') as any;
-      err.statusCode = 404;
-      throw err;
+      const error = await this.fastify.getErrorMessage(this.fastify.errorConstants.STUDENT_NOT_FOUND);
+      return { statusCode: 404, body: error };
     }
 
     let enrolledCourseIds: Set<number>;
 
     // Try fetching from Redis first
-    const redisKey = `${REDIS_KEYS.STUDENT_ENROLLED_PREFIX}:${student.id}`;
-    if (this.fastify.redis) {
-      const cachedIds = await this.fastify.redis.smembers(redisKey);
+    const cacheKey = `${REDIS_KEYS.STUDENT_ENROLLED_PREFIX}:${student.id}`;
+    if (this.fastify.cacheClient) {
+      this.fastify.log.trace(`getCoursesForStudents:service - searching in cache for ${cacheKey}`)
+      const cachedIds: string[] = await this.fastify.cacheClient.get(cacheKey);
       if (cachedIds && cachedIds.length > 0) {
+        this.fastify.log.trace(`getCoursesForStudents:service - cachehit for ${cacheKey}`)
+
         enrolledCourseIds = new Set(cachedIds.map(id => parseInt(id, 10)));
       } else {
+        this.fastify.log.trace(`getCoursesForStudents:service - cachemiss for ${cacheKey}`)
+
         enrolledCourseIds = new Set(student.courses.map((c: StudentCourse) => c.courseId));
         if (enrolledCourseIds.size > 0) {
-          await this.fastify.redis.sadd(redisKey, ...Array.from(enrolledCourseIds).map(id => id.toString()));
-          await this.fastify.redis.expire(redisKey, REDIS_TTL.STUDENT_ENROLLED);
+          await this.fastify.cacheClient.set(cacheKey, [...Array.from(enrolledCourseIds).map(id => id.toString())]);
         }
       }
     } else {
       enrolledCourseIds = new Set(student.courses.map((c: StudentCourse) => c.courseId));
     }
 
-    const skip = page * size;
-    const whereClause = search && search.trim() !== ''
-      ? { courseName: { contains: search, mode: 'insensitive' as const } }
-      : {};
+    const courses = await this.courseService.fetchAllCourses(search, page, size);
+    const {totalElements} = courses.body;
 
-    const [courses, totalElements] = await Promise.all([
-      this.fastify.prisma.course.findMany({
-        where: whereClause,
-        skip,
-        take: size,
-        orderBy: { courseName: 'asc' }
-      }),
-      this.fastify.prisma.course.count({ where: whereClause })
-    ]);
-
-    const content = courses.map((course: Course) => ({
+    const content = courses.body.content.map((course: Course) => ({
       id: course.id,
       courseName: course.courseName,
       credits: Number(course.credits),
       enrolled: enrolledCourseIds.has(course.id)
     }));
 
-    return buildPagingResult(content, totalElements, page, size);
+    return { statusCode: 200, body: buildPagingResult(content, totalElements, page, size) };
   }
 
   private formatStudentDTO(student: any) {
@@ -228,6 +249,7 @@ export class StudentService {
       firstName: student.firstName,
       lastName: student.lastName,
       email: student.email,
+      fullName: `${student.firstName} ${student.lastName}`.trim(),
       dateOfBirth: student.dateOfBirth instanceof Date ? student.dateOfBirth.toISOString().split('T')[0] : student.dateOfBirth,
       dateOfJoining: student.dateOfJoining instanceof Date ? student.dateOfJoining.toISOString().split('T')[0] : student.dateOfJoining
     };

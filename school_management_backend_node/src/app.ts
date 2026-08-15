@@ -10,7 +10,9 @@ const __dirname = path.dirname(__filename);
 
 async function buildApp() {
   const fastify = Fastify({
-    logger: true,
+    logger: {
+      level: 'trace'
+    },
     ajv: {
       customOptions: {
         allErrors: true,
@@ -21,22 +23,23 @@ async function buildApp() {
     }
   });
 
-  // CORS Configuration
-  await fastify.register(fastifyCors, {
-    origin: ['http://localhost:5173'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    credentials: true
-  });
-
-  // Register JWT core plugin
-  await fastify.register(fastifyJwt, {
-    secret: process.env.JWT_SECRET || 'super-super-super-super-super-secret-key'
-  });
-
-  // Autoload all plugins inside src/plugins
-  await fastify.register(fastifyAutoload, {
-    dir: path.join(__dirname, 'plugins')
-  });
+  // Plugin registrations (chained)
+  fastify
+    .register(fastifyCors, {
+      origin: ['http://localhost:5173'],
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      credentials: true
+    })
+    .register(fastifyJwt, {
+      secret: process.env.JWT_SECRET || 'super-super-super-super-super-secret-key'
+    })
+    // Autoload configs and plugins directories
+    .register(fastifyAutoload, {
+      dir: path.join(__dirname, 'configs')
+    })
+    .register(fastifyAutoload, {
+      dir: path.join(__dirname, 'plugins')
+    });
 
   return fastify;
 }

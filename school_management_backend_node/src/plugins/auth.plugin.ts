@@ -14,7 +14,7 @@ async function authPlugin(fastify: FastifyInstance) {
     return async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         await request.jwtVerify();
-        const user = request.user as { username: string; role: string };
+        const user = request.user as { email: string; role: string };
 
         if (!user || !user.role || !allowedRoles.includes(user.role)) {
           return reply.status(403).send({ status: 403, message: 'Access Denied: Insufficient Privileges' });

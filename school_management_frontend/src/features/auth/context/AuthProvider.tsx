@@ -19,7 +19,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const decoded = accessToken ? decodeJwt(accessToken) : null;
 
-  const email = decoded?.sub ?? null;
+  const email = decoded?.email ?? null;
   const isExpired = decoded ? isTokenExpired(decoded.exp) : true;
   const isAuthenticated = !!accessToken && !!decoded && !isExpired;
   const role = decoded?.role ?? null;

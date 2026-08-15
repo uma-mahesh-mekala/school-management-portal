@@ -4,7 +4,7 @@ import { NavLink } from "react-router";
 import { useHasPermission } from "../../features/auth/hooks/useHasPermission";
 
 export default function Sidebar() {
-  const canSeeStudents = useHasPermission("students:view");
+  const canSeeStudents = useHasPermission("student:view");
 
   return (
     <aside className="w-64 border-r border-slate-200 bg-white sticky">

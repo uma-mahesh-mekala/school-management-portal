@@ -7,8 +7,11 @@ export function useGetStudentById(studentId: number) {
   return useQuery({
     queryKey: ["student", studentId],
     queryFn: () => getStudentById(studentId),
-    initialData: queryClient
-      .getQueryData<Student[]>(["students"])
-      ?.find((s: Student) => s.id === studentId),
+    initialData: () => {
+      const cachedData = queryClient.getQueryData<any>(["students"]);
+
+      const list: Student[] | undefined = Array.isArray(cachedData) ? cachedData : cachedData.content;
+      return list?.find((s: Student) => s.id === studentId);
+    }
   });
 }

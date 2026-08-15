@@ -6,9 +6,9 @@ export function createCourseHandlers(fastify: FastifyInstance) {
 
   return {
     async addCourse(req: FastifyRequest, reply: FastifyReply) {
-      const body = req.body as CourseRequestDTO;
-      const course = await courseService.addCourse(body);
-      return reply.status(201).send(course);
+      const requestBody = req.body as CourseRequestDTO;
+      const {statusCode, body} = await courseService.addCourse(requestBody);
+      return reply.status(statusCode).send(body);
     },
 
     async getAllCourses(req: FastifyRequest, reply: FastifyReply) {
@@ -16,33 +16,32 @@ export function createCourseHandlers(fastify: FastifyInstance) {
       const page = parseInt(query.page || '0', 10);
       const size = parseInt(query.size || '10', 10);
 
-      const result = await courseService.fetchAllCourses(query.search, page, size);
-      return reply.status(200).send(result);
+      const {statusCode, body} = await courseService.fetchAllCourses(query.search, page, size);
+      return reply.status(statusCode).send(body);
     },
 
     async getCourseById(req: FastifyRequest, reply: FastifyReply) {
-      const params = req.params as { courseId: string };
-      const courseId = parseInt(params.courseId, 10);
+      const {courseId} = req.params as { courseId: string };
 
-      const course = await courseService.findById(courseId);
-      return reply.status(200).send(course);
+      const {statusCode, body} = await courseService.findById(parseInt(courseId));
+      return reply.status(statusCode).send(body);
     },
 
     async updateCourse(req: FastifyRequest, reply: FastifyReply) {
-      const params = req.params as { courseId: string };
-      const courseId = parseInt(params.courseId, 10);
-      const body = req.body as CourseRequestDTO;
+      const {courseId} = req.params as { courseId: string };
+      const requesBbody = req.body as CourseRequestDTO;
 
-      const updated = await courseService.updateCourse(courseId, body);
-      return reply.status(200).send(updated);
+      const {statusCode, body} = await courseService.updateCourse(parseInt(courseId), requesBbody);
+      return reply.status(statusCode).send(body);
     },
 
     async deleteCourse(req: FastifyRequest, reply: FastifyReply) {
-      const params = req.params as { courseId: string };
-      const courseId = parseInt(params.courseId, 10);
+      const {courseId} = req.params as { courseId: string };
 
-      await courseService.deleteCourse(courseId);
-      return reply.status(204).send();
+      await courseService.deleteCourse(parseInt(courseId));
+      return reply.status(204).send({
+        message: `Course deleted successfully`
+      });
     }
   };
 }

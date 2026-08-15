@@ -12,6 +12,7 @@
     "prisma:migrate": "prisma migrate dev"
   },
   "dependencies": {
+    "@cacheable/node-cache": "^3.1.1",
     "@fastify/autoload": "^6.0.0",
     "@fastify/cors": "^10.0.1",
     "@fastify/env": "^5.0.1",

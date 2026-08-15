@@ -6,15 +6,15 @@ export function createAuthHandlers(fastify: FastifyInstance) {
 
   return {
     async login(req: FastifyRequest, reply: FastifyReply) {
-      const body = req.body as { username?: string; password?: string };
-      const result = await authService.login(body);
-      return reply.status(200).send(result);
+      const {email, password} = req.body as { email: string; password: string };
+      const {statusCode, body} = await authService.login(email, password);
+      return reply.status(statusCode).send(body);
     },
 
     async registerUser(req: FastifyRequest, reply: FastifyReply) {
-      const body = req.body as { username: string; password: string; role: string };
-      const newUser = await authService.createUser(body.username, body.password, body.role);
-      return reply.status(201).send(newUser);
+      const { email, password, role } = req.body as { email: string; password: string; role: string };
+      const {statusCode, body} = await authService.createUser(email, password, role);
+      return reply.status(statusCode).send(body);
     },
 
     async validateToken(req: FastifyRequest, reply: FastifyReply) {

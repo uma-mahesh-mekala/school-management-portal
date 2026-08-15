@@ -12,28 +12,50 @@ export class CourseService {
   constructor(private fastify: FastifyInstance) {}
 
   async addCourse(dto: CourseRequestDTO) {
+    const rawName = dto.courseName.trim();
+    const capitalizedName = rawName
+      .split(/\s+/)
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(' ');
+
+    // Check if course already exists (case-insensitive)
+    const existing = await this.fastify.prisma.course.findFirst({
+      where: { courseName: { equals: capitalizedName, mode: 'insensitive' as const } }
+    });
+
+    if (existing) {
+      const error = await this.fastify.getErrorMessage(this.fastify.errorConstants.COURSE_ALREADY_EXISTS);
+      return { statusCode: 400, body: error };
+    }
+
     const course = await this.fastify.prisma.course.create({
       data: {
-        courseName: dto.courseName,
+        courseName: capitalizedName,
         credits: dto.credits
       }
     });
 
-    await this.invalidateCache();
-    return {
+    this.fastify.invalidateCache(REDIS_KEYS.COURSE_CATALOG_PREFIX);
+    return { statusCode: 200, body: {
       id: course.id,
       courseName: course.courseName,
       credits: Number(course.credits)
-    };
+    }};
   }
 
   async fetchAllCourses(search?: string, page: number = 0, size: number = 10) {
+    this.fastify.log.trace("fetchAllCourses:service - starts")
     const cacheKey = `${REDIS_KEYS.COURSE_CATALOG_PREFIX}:${search || 'all'}:p:${page}:s:${size}`;
 
-    if (this.fastify.redis) {
-      const cached = await this.fastify.redis.get(cacheKey);
+    if (this.fastify.cacheClient) {
+      this.fastify.log.trace(`searching courses for ${cacheKey} in cache`);
+      const cached = await this.fastify.cacheClient.get(cacheKey);
       if (cached) {
-        return JSON.parse(cached);
+        this.fastify.log.trace(`cachehit:data found in cache`)
+        return {
+          statusCode: 200,
+          body: JSON.parse(cached)
+        }
       }
     }
 
@@ -42,6 +64,7 @@ export class CourseService {
       ? { courseName: { contains: search, mode: 'insensitive' as const } }
       : {};
 
+    this.fastify.log.trace("cachemiss: searching for data in DB")  
     const [courses, totalElements] = await Promise.all([
       this.fastify.prisma.course.findMany({
         where: whereClause,
@@ -60,11 +83,9 @@ export class CourseService {
 
     const result = buildPagingResult(formattedContent, totalElements, page, size);
 
-    if (this.fastify.redis) {
-      await this.fastify.redis.set(cacheKey, JSON.stringify(result), 'EX', REDIS_TTL.COURSE_CATALOG);
-    }
+    this.fastify.cacheClient.set(cacheKey, JSON.stringify(result)) 
 
-    return result;
+    return { statusCode: 200, body: result };
   }
 
   async findById(id: number) {
@@ -73,16 +94,15 @@ export class CourseService {
     });
 
     if (!course) {
-      const err = new Error('Course not found') as any;
-      err.statusCode = 404;
-      throw err;
+      const error = await this.fastify.getErrorMessage(this.fastify.errorConstants.COURSE_NOT_FOUND);
+      return { statusCode: 404, body: error };
     }
 
-    return {
+    return { statusCode: 200, body: {
       id: course.id,
       courseName: course.courseName,
       credits: Number(course.credits)
-    };
+    }};
   }
 
   async updateCourse(id: number, dto: CourseRequestDTO) {
@@ -94,12 +114,12 @@ export class CourseService {
       }
     });
 
-    await this.invalidateCache();
-    return {
+    this.fastify.invalidateCache(REDIS_KEYS.COURSE_CATALOG_PREFIX);
+    return { statusCode: 200, body: {
       id: updated.id,
       courseName: updated.courseName,
       credits: Number(updated.credits)
-    };
+    }};
   }
 
   async deleteCourse(id: number) {
@@ -107,20 +127,10 @@ export class CourseService {
       await this.fastify.prisma.course.delete({
         where: { id }
       });
-      await this.invalidateCache();
+      this.fastify.invalidateCache(REDIS_KEYS.COURSE_CATALOG_PREFIX);
     } catch (error) {
-      const err = new Error('Course not found') as any;
-      err.statusCode = 404;
-      throw err;
-    }
-  }
-
-  private async invalidateCache() {
-    if (this.fastify.redis) {
-      const keys = await this.fastify.redis.keys(`${REDIS_KEYS.COURSE_CATALOG_PREFIX}:*`);
-      if (keys.length > 0) {
-        await this.fastify.redis.del(...keys);
-      }
+      const e = await this.fastify.getErrorMessage(this.fastify.errorConstants.COURSE_NOT_FOUND);
+      return { statusCode: 404, body: e };
     }
   }
 }
