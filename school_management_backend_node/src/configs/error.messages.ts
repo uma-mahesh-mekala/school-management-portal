@@ -1,4 +1,4 @@
-import { ErrorConstants } from './error.constants';
+import { ErrorConstants } from './error.constants.js';
 
 export interface ErrorMessage {
     code: string;

@@ -33,7 +33,8 @@ export class AuthService {
 
     const accessToken = this.fastify.jwt.sign({
       email: appUser.email,
-      role: appUser.role
+      role: appUser.role,
+      expiresAt: new Date().getTime() + 15*60*1000
     });
 
     return { statusCode: 200, body: { accessToken } };

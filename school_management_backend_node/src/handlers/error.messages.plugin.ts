@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import ErrorMessages from "../configs/error.messages";
+import ErrorMessages from "../configs/error.messages.js";
 import fastifyPlugin from "fastify-plugin";
 
 const ErrorMessagePlugin = async (fastify: FastifyInstance) => {

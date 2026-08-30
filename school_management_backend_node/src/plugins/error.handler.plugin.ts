@@ -13,6 +13,7 @@ async function errorHandlerPlugin(fastify: FastifyInstance) {
 
   // Catch unexpected application errors, schema validation errors, and Prisma errors
   fastify.setErrorHandler((error: any, request: FastifyRequest, reply: FastifyReply) => {
+    console.log(error)
     fastify.log.error(error);
 
     // Handle Fastify Inbuilt Schema Validation Errors (Ajv)

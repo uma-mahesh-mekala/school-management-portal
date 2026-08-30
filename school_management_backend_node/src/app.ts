@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 async function buildApp() {
   const fastify = Fastify({
     logger: {
-      level: 'trace'
+      level: 'error'
     },
     ajv: {
       customOptions: {

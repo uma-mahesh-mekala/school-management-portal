@@ -21,6 +21,7 @@
     "@fastify/swagger": "^9.4.0",
     "@fastify/swagger-ui": "^5.2.0",
     "@prisma/client": "^6.3.1",
+    "@valkey/valkey-glide": "^2.5.1",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.7",
     "fastify": "^5.2.1",
