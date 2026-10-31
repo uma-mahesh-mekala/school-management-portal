@@ -5,6 +5,8 @@ export interface JwtPayload {
   iat: number;
   exp: number;
   role: string;
+  expiresAt: number;
+  email: string
 }
 const decodeJwt = (token: string): JwtPayload | null => {
   let decoded;

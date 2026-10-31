@@ -1,0 +1,39 @@
+{
+  "name": "school-management-backend-node",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Fastify Node.js Backend for School Management Portal",
+  "main": "dist/app.js",
+  "scripts": {
+    "dev": "tsx watch src/app.ts",
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev"
+  },
+  "dependencies": {
+    "@cacheable/node-cache": "^3.1.1",
+    "@fastify/autoload": "^6.0.0",
+    "@fastify/cors": "^10.0.1",
+    "@fastify/env": "^5.0.1",
+    "@fastify/jwt": "^9.0.1",
+    "@fastify/redis": "^7.0.1",
+    "@fastify/swagger": "^9.4.0",
+    "@fastify/swagger-ui": "^5.2.0",
+    "@prisma/client": "^6.3.1",
+    "@valkey/valkey-glide": "^2.5.1",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.7",
+    "fastify": "^5.2.1",
+    "fastify-openapi-glue": "^4.4.0",
+    "fastify-plugin": "^5.0.1",
+    "ioredis": "^5.5.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/node": "^22.13.1",
+    "prisma": "^6.3.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

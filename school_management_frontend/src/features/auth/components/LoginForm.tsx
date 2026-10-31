@@ -10,7 +10,7 @@ export default function LoginForm({ onSubmit, errorMessage }: LoginFormProps) {
     const formData = new FormData(e.currentTarget);
 
     const loginRequest = {
-      username: String(formData.get("username")),
+      email: String(formData.get("username")),
       password: String(formData.get("password")),
     };
 

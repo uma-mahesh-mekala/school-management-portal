@@ -72,6 +72,7 @@ export async function deleteCourse(courseId: number) {
   if (confirmDelete) {
     const deleteCourseByIdResponse = await apiFetch(deleteCourseByIdUrl, {
       method: "DELETE",
+      body: JSON.stringify({})
     });
 
     if (!deleteCourseByIdResponse.ok) {

@@ -38,7 +38,7 @@ export async function getProfessorById(id: number) {
 
   const getProfessorByIdResponse = await apiFetch(professorByIdUrl);
   const professor = await getProfessorByIdResponse.json();
-
+  console.log(professor)
   return {
     ...professor,
     fullName: `${professor.firstName} ${professor.lastName}`,
@@ -76,6 +76,7 @@ export async function deleteProfessor(id: number) {
   if (confirmDelete) {
     const deleteProfessorByIdResponse = await apiFetch(deleteProfessorByIdUrl, {
       method: "DELETE",
+      body: JSON.stringify({})
     });
 
     if (!deleteProfessorByIdResponse.ok) {

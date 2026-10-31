@@ -9,6 +9,7 @@ const permissions: Record<string, Permission[]> = {
     "professor:edit",
     "professor:delete",
     "student:create",
+    "student:view",
     "student:edit",
     "student:delete",
   ],

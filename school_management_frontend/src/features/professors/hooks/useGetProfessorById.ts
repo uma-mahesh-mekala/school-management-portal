@@ -7,8 +7,11 @@ export function useGetProfessorById(professorId: number) {
   return useQuery({
     queryKey: ["professor", professorId],
     queryFn: () => getProfessorById(professorId),
-    initialData: queryClient
-      .getQueryData<Professor[]>(["professors"])
-      ?.find((p: Professor) => p.id === professorId),
+    initialData: (() => {
+      const cached = queryClient.getQueryData<any>(["professors"]);
+      // `cached` may be an array of professors or a paginated object { content: Professor[] }
+      const list: Professor[] | undefined = Array.isArray(cached) ? cached : cached?.content;
+      return list?.find((p: Professor) => p.id === professorId);
+    })(),
   });
 }

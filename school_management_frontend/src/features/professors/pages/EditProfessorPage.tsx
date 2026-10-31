@@ -11,6 +11,7 @@ export default function EditProfessorPage() {
   const professorId = Number(params.professorId);
 
   const { data, isFetching } = useGetProfessorById(professorId);
+  console.log(data)
   async function editProfessor(formData: FormData) {
     updateProfessorMutation.mutate({ formData, professorId });
     navigate("/professors");
